@@ -5,4 +5,4 @@ answered, or the player is punished.
 
 ## Known Issues
 
-- Window will randomly freeze when touching taco or power-up occasionally, requiring a full restart of the window
+- Window will randomly freeze when touching taco or power-up occasionally, requiring a full restart of the window (Fixed *I think* as of v1.2)

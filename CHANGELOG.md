@@ -1,3 +1,20 @@
+## [1.2] - 06-05-2021
+
+### Added
+
+- Added bonus points, -4 length, and golden tacos power-ups
+- Added countdown timer that displays when interacting with half-speed power-up
+
+### Changed
+
+- Changed logic for key presses to add 3 key presses to a queue rather than executing the last pushed key in a draw cycle
+- Reworked spawn logic for tacos and power-ups to prevent them from spawning inside each other (i.e. a half-speed spawning on top of a -4 length)
+
+### Fixed
+
+- Fixed issue causing tab to freeze when inputting multiple key presses in one draw cycle, causing the game to think the snake self collides
+- Fixed issue causing tab freeze when touching tacos or power-ups
+
 ## [1.1] - 06-01-2021
 
 ### Added
