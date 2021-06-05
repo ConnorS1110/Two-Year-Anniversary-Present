@@ -2,35 +2,36 @@
 
 ### Added
 
-- Added bonus points, -4 length, and golden tacos power-ups
-- Added countdown timer that displays when interacting with half-speed power-up
+-   Added bonus points, -4 length, and golden tacos power-ups
+-   Added countdown timer that displays when interacting with half-speed power-up
 
 ### Changed
 
-- Changed logic for key presses to add 3 key presses to a queue rather than executing the last pushed key in a draw cycle
-- Reworked spawn logic for tacos and power-ups to prevent them from spawning inside each other (i.e. a half-speed spawning on top of a -4 length)
+-   Changed logic for key presses to add 3 key presses to a queue rather than executing the last pushed key in a draw cycle
+-   Reworked spawn logic for tacos and power-ups to prevent them from spawning inside each other (i.e. a half-speed spawning on top of a -4 length)
+-   Separated styles into a separate file to improve readability
 
 ### Fixed
 
-- Fixed issue causing tab to freeze when inputting multiple key presses in one draw cycle, causing the game to think the snake self collides
-- Fixed issue causing tab freeze when touching tacos or power-ups
+-   Fixed issue causing tab to freeze when inputting multiple key presses in one draw cycle, causing the game to think the snake self collides
+-   Fixed issue causing tab freeze when touching tacos or power-ups
 
 ## [1.1] - 06-01-2021
 
 ### Added
 
-- New UI elements to show score and score until speed increase
-- Added power-up that cuts the speed of the game in half for 15 seconds
-- Added logic for collisions with walls and snake body (may be source of freezing issue)
+-   New UI elements to show score and score until speed increase
+-   Added power-up that cuts the speed of the game in half for 15 seconds
+-   Added logic for collisions with walls and snake body (may be source of freezing issue)
 
 ### Fixed
 
-- Fixed issue which allowed tacos and power-ups to spawn on the snake's body
-- Fixed an issue that wasn't causing the game to speed-up after acquiring the required number of tacos
+-   Fixed issue which allowed tacos and power-ups to spawn on the snake's body
+-   Fixed an issue that wasn't causing the game to speed-up after acquiring the required number of tacos
 
 ## [1.0] - 05-31-2021
 
 ### Added
 
-- Implemented most of the basic snake game logic
-- Designed the board
+-   Implemented most of the basic snake game logic
+-   Designed the board
