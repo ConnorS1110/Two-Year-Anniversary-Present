@@ -5,7 +5,7 @@ const boardCTX = boardCVS.getContext("2d");
 const TO_RADIANS = Math.PI/180;
 let scoreElement = document.getElementById("score-number");
 let levelElement = document.getElementById("number");
-let upgradeElement = document.getElementById("score-upgrade");
+let upgradeElement = document.getElementById("upgrade-number");
 let powerElement = document.getElementById("power-up");
 let powerImage = document.getElementById("power-up-image");
 let time = document.getElementById("timer");
@@ -223,25 +223,34 @@ function flipDraw(image, x, y) {
     ctx.translate(-x, -y);
 }
 
-
+// Initializes info needed to draw power-ups image to display
 let drawDone = false;
+let firstPower = false;
+var img = document.createElement('img');
 let powerDraw = setTimeout(function () {
     return 0;
-}, 1000);
+}, 0);
 
+// Removes current power-up image from HTML
+function revertPowerImage() {
+    img.classList.remove("power-image-changes");
+    powerImage.removeChild(img);
+    drawDone = true;
+}
+
+// Function for adding power-up image with animation to display
 function drawPowerImage(imgSource) {
+    if (firstPower == false) {
+        firstPower = true;
+    }
     drawDone = false;
-    var img = document.createElement('img');
     img.src = imgSource;
     img.style.height = '75px';
     img.style.width = 'auto';
     powerImage.appendChild(img);
     img.classList.add("power-image-changes");
     powerDraw = setTimeout(function () {
-        img.classList.remove("power-image-changes");
-        powerImage.removeChild(img);
-        drawDone = true;
-        console.log("drawDone is now true");
+        revertPowerImage();
     }, 1000);
 }
 
@@ -345,7 +354,7 @@ function draw() {
         
         /* If score is a multiple of speed upgrade interval, the time is sped
         up by 20ms and the interval of the game is reset */
-        if (score % UPGRADE == 0 && SPEED >= 50 && scoreNeeded < 10) {
+        if (scoreNeeded % UPGRADE == 1 && SPEED >= 50 && scoreNeeded < 10) {
             SPEED -= 20;
             clearInterval(game);
             game = setInterval(draw, SPEED);
@@ -526,8 +535,9 @@ function draw() {
     if (snakeX == halfSpeed.x && snakeY == halfSpeed.y) {
         halfSpeedActive = false;
         halfSpeedInUse = true;
-        if (drawDone == false) {
+        if (drawDone == false && firstPower == true) {
             clearTimeout(powerDraw);
+            revertPowerImage();
             drawPowerImage(speedSRC);
         }
         else {
@@ -569,8 +579,9 @@ function draw() {
     */
     if (snakeX == small.x && snakeY == small.y) {
         smallActive = false;
-        if (drawDone == false) {
+        if (drawDone == false && firstPower == true) {
             clearTimeout(powerDraw);
+            revertPowerImage();
             drawPowerImage(smallSRC);
         }
         else {
@@ -598,8 +609,9 @@ function draw() {
     if (snakeX == points.x && snakeY == points.y) {
         clearTimeout(scoreTimeout);
         pointsActive = false;
-        if (drawDone == false) {
+        if (drawDone == false && firstPower == true) {
             clearTimeout(powerDraw);
+            revertPowerImage();
             drawPowerImage(pointsSRC);
         }
         else {
@@ -626,8 +638,9 @@ function draw() {
     */
     if (snakeX == extra.x && snakeY == extra.y) {
         extraActive = false;
-        if (drawDone == false) {
+        if (drawDone == false && firstPower == true) {
             clearTimeout(powerDraw);
+            revertPowerImage();
             drawPowerImage(extraSRC);
         }
         else {
@@ -729,8 +742,9 @@ function draw() {
     if (snakeX == extraOne.x && snakeY == extraOne.y || snakeX == extraTwo.x && snakeY == extraTwo.y ||
         snakeX == extraThree.x && snakeY == extraThree.y) {
         clearTimeout(scoreTimeout);
-        if (drawDone == false) {
+        if (drawDone == false && firstPower == true) {
             clearTimeout(powerDraw);
+            revertPowerImage();
             drawPowerImage(goldenSRC);
         }
         else {
@@ -784,7 +798,7 @@ function draw() {
     // Updates score, "score until speedup", and power-up UI
     scoreElement.innerHTML = score;
     levelElement.innerHTML = level;
-    upgradeElement.innerHTML = scoreNeeded + " tacos until speedup";
+    upgradeElement.innerHTML = scoreNeeded;
 
     // Determines how to move snake depending on the direction it is moving
     direction();
@@ -810,10 +824,14 @@ function draw() {
     if (snakeX < 0 || snakeX > box * (COLUMNS - 1) || snakeY < 0 ||
         snakeY > ~~(box * (COLUMNS - 1) * 0.8) || collision(newHead, snake)) {
         clearInterval(game);
-        //clearInterval(countDown);
-        //time.classList.remove('animation');
-        //time.innerHTML = "";
-        //clearTimeout(scoreTimeout);
+        clearInterval(countDown);
+        time.classList.remove('animation');
+        time.innerHTML = "";
+        clearTimeout(scoreTimeout);
+        clearTimeout(powerDraw);
+        if (drawDone == false && firstPower == true) {
+            revertPowerImage();
+        }
     }
 
     // Checks for a collision

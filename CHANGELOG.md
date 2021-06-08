@@ -1,3 +1,14 @@
+## [1.3.1] - 06-08-2021
+
+### Changed
+
+-   Changed color for the number of tacos needed to level up to improve visibility
+
+### Fixed
+
+-   Fixed a bug that was causing the incorrect score needed to level up
+-   Fixed a bug that caused power-up images to not properly despawn from the UI
+
 ## [1.3] - 06-08-2021
 
 ### Added

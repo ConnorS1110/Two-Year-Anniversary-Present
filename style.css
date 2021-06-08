@@ -67,6 +67,11 @@ body {
     width: 100%;
 }
 
+#upgrade-number {
+    font-size: 25pt;
+    color: red;
+}
+
 #text-space {
     width: 300px;
     height: 400px;
