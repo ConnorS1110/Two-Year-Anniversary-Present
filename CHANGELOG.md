@@ -1,3 +1,23 @@
+## [1.3] - 06-08-2021
+
+### Added
+
+-   Added image sprites for all game components
+-   Added UI to show you which power-up the player touched
+-   Added UI to show what speed level the player is on
+-   Added functionality that makes snake parts rotate with direction
+
+### Changed
+
+-   Updated board colors to help with better visibility
+-   Updated font to make numbers appear level
+-   Update score UI to improve readability
+-   Hidden unused UI
+
+### Fixed
+
+-   Fixed issue causing parts to not properly rotate with direction
+
 ## [1.2] - 06-05-2021
 
 ### Added

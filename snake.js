@@ -2,9 +2,12 @@ const cvs = document.getElementById("snake");
 const ctx = cvs.getContext("2d");
 const boardCVS = document.getElementById("board");
 const boardCTX = boardCVS.getContext("2d");
+const TO_RADIANS = Math.PI/180;
 let scoreElement = document.getElementById("score-number");
+let levelElement = document.getElementById("number");
 let upgradeElement = document.getElementById("score-upgrade");
 let powerElement = document.getElementById("power-up");
+let powerImage = document.getElementById("power-up-image");
 let time = document.getElementById("timer");
 
 //How many columns. There will be 0.8 times as many rows
@@ -13,8 +16,9 @@ const COLUMNS = 25;
 //How many initial ms for each move tick
 let SPEED = 200;
 
-//Score needed for speedup
+//Score needed for speedup and initial level
 const UPGRADE = 10;
+let level = 1;
 
 //Chance for a power-up to spawn
 const POWER_CHANCE = 1.0;
@@ -41,6 +45,37 @@ extraX = extraY = -box;
 let extraOneX, extraOneY, extraTwoX, extraTwoY, extraThreeX, extraThreeY;
 extraOneX = extraOneY = extraTwoX = extraTwoY = extraThreeX = extraThreeY = -box;
 
+// Loads needed image files
+headSRC = "img/head.webp";
+hairSRC = "img/hair.webp";
+tailSRC = "img/tail.webp";
+tacoSRC = "img/taco.webp";
+goldenSRC = "img/golden_taco.webp";
+extraSRC = "img/extra.webp";
+pointsSRC = "img/points.webp";
+speedSRC = "img/speed.webp";
+smallSRC = "img/small.webp";
+
+const head = new Image();
+const hair = new Image();
+const tail = new Image();
+const taco = new Image();
+const goldenTaco = new Image();
+const extraImage = new Image();
+const pointsImage = new Image();
+const speedImage = new Image();
+const smallImage = new Image();
+
+head.src = headSRC;
+hair.src = hairSRC;
+tail.src = tailSRC;
+taco.src = tacoSRC;
+goldenTaco.src = goldenSRC;
+extraImage.src = extraSRC;
+pointsImage.src = pointsSRC;
+speedImage.src = speedSRC;
+smallImage.src = smallSRC;
+
 // Initializes taco location
 let foodX, foodY = 0;
 let foodIntersection = true;
@@ -63,6 +98,7 @@ let food = {
 
 // Initializes half-speed power-up variables
 let halfSpeedActive = false;
+let halfSpeedInUse = false;
 let halfSpeed = {
     x: -box,
     y: -box
@@ -152,16 +188,77 @@ function drawBoard() {
     for (let i = 0; i < COLUMNS; i++){
         for (let j = 0; j < ~~(COLUMNS * 0.8); j++){
             if (i % 2 == j % 2) {
-                boardCTX.fillStyle = "purple";
+                boardCTX.fillStyle = "#A227D6";
                 boardCTX.fillRect(box * i , box * j, box, box);
             }
             else {
-                boardCTX.fillStyle = "pink";
+                boardCTX.fillStyle = "#6E14A7";
                 boardCTX.fillRect(box * i, box * j, box, box);
             }
         }
     }
 }
+
+// Places context to rotate current image to be drawn
+function rotateDraw(image, x, y, angle) {
+    ctx.translate(x, y);
+    ctx.rotate(angle * TO_RADIANS);
+    if (image == head) {
+        ctx.scale(-1, 1);
+    }
+    ctx.drawImage(image, -(box / 2), -(box / 2), box, box);
+    if (image == head) {
+        ctx.scale(-1, 1);
+    }
+    ctx.rotate(-(angle * TO_RADIANS));
+    ctx.translate(-x, -y);
+}
+
+// Places context to flip current image to be drawn horizontally
+function flipDraw(image, x, y) {
+    ctx.translate(x, y);
+    ctx.scale(-1, 1);
+    ctx.drawImage(image, -(box / 2), -(box / 2), box, box);
+    ctx.scale(-1, 1);
+    ctx.translate(-x, -y);
+}
+
+
+let drawDone = false;
+let powerDraw = setTimeout(function () {
+    return 0;
+}, 1000);
+
+function drawPowerImage(imgSource) {
+    drawDone = false;
+    var img = document.createElement('img');
+    img.src = imgSource;
+    img.style.height = '75px';
+    img.style.width = 'auto';
+    powerImage.appendChild(img);
+    img.classList.add("power-image-changes");
+    powerDraw = setTimeout(function () {
+        img.classList.remove("power-image-changes");
+        powerImage.removeChild(img);
+        drawDone = true;
+        console.log("drawDone is now true");
+    }, 1000);
+}
+
+// Initialize setInterval function for countdown timer
+let countDown = setInterval(function () {
+    return 0;
+}, 1000);
+
+// Initialize setInterval function to remove animation class from score UI
+let scoreTimeout = setTimeout(function () {
+    scoreElement.classList.remove('animation');
+}, 1000);
+
+// Initialize setInterval function to remove animation class from level UI
+let levelTimeout = setTimeout(function () {
+    levelElement.classList.remove('animation');
+}, 1000);
 
 // Function for drawing all parts of the game and UI
 function draw() {
@@ -170,13 +267,68 @@ function draw() {
 
     // Draws the snake
     for (let i = 0; i < snake.length; i++){
-        ctx.fillStyle = (i == 0) ? "green" : "white";
-        ctx.fillRect(snake[i].x, snake[i].y, box, box);
+        // Head
+        if (i == 0) {
+            // Down
+            if (d == "DOWN") {
+                rotateDraw(head, snake[i].x + (box / 2), snake[i].y + (box / 2), 90);
+            }
+            // Up
+            else if (d == "UP") {
+                rotateDraw(head, snake[i].x + (box / 2), snake[i].y + (box / 2), -90);
+            }
+            // Left
+            else if (d == "RIGHT") {
+                flipDraw(head, snake[i].x + (box / 2), snake[i].y + (box / 2));
+            }
+            // Left
+            else {
+                ctx.drawImage(head, snake[i].x, snake[i].y, box, box);
+            }
+            
+        }
+        // Main body
+        else if (i != (snake.length - 1)) {
+            // Down
+            if ((snake[i].y < snake[i - 1].y) && (snake[i].x == snake[i - 1].x)) {
+                rotateDraw(hair, snake[i].x + (box / 2), snake[i].y + (box / 2), 90);
+            }
+            // Up
+            else if ((snake[i].y > snake[i - 1].y) && (snake[i].x == snake[i - 1].x)) {
+                rotateDraw(hair, snake[i].x + (box / 2), snake[i].y + (box / 2), -90);
+            }
+            // Right
+            else if ((snake[i].x < snake[i - 1].x) && (snake[i].y == snake[i - 1].y)) {
+                ctx.drawImage(hair, snake[i].x, snake[i].y, box, box);
+            }
+            // Left
+            else {
+                flipDraw(hair, snake[i].x + (box / 2), snake[i].y + (box / 2));
+            }
+        }
+        // Tail piece
+        else {
+            // Down
+            if ((snake[i].y < snake[i - 1].y) && (snake[i].x == snake[i - 1].x)) {
+                rotateDraw(tail, snake[i].x + (box / 2), snake[i].y + (box / 2), 90);
+            }
+            // Up
+            else if ((snake[i].y > snake[i - 1].y) && (snake[i].x == snake[i - 1].x)) {
+                rotateDraw(tail, snake[i].x + (box / 2), snake[i].y + (box / 2), -90);
+            }
+            // Right
+            else if ((snake[i].x < snake[i - 1].x) && (snake[i].y == snake[i - 1].y)) {
+                ctx.drawImage(tail, snake[i].x, snake[i].y, box, box);
+            }
+            // Left
+            else {
+                flipDraw(tail, snake[i].x + (box / 2), snake[i].y + (box / 2));
+            }
+        }
     }
 
-    // Draws initial taco
-    ctx.fillStyle = "red";
-    ctx.fillRect(food.x, food.y, box, box);
+    // Draws tacos
+    ctx.drawImage(taco, food.x, food.y, box, box);
 
     // Head of the snake
     let snakeX = snake[0].x;
@@ -184,7 +336,13 @@ function draw() {
 
     // Logic for eating a taco
     if (snakeX == food.x && snakeY == food.y) {
+        clearTimeout(scoreTimeout);
         score++;
+        scoreElement.classList.add('animation');
+        scoreTimeout = setTimeout(function () {
+            scoreElement.classList.remove('animation');
+        }, 1000);
+        
         /* If score is a multiple of speed upgrade interval, the time is sped
         up by 20ms and the interval of the game is reset */
         if (score % UPGRADE == 0 && SPEED >= 50 && scoreNeeded < 10) {
@@ -192,6 +350,7 @@ function draw() {
             clearInterval(game);
             game = setInterval(draw, SPEED);
             scoreNeeded = UPGRADE;
+            level++;
         }
         else {
             scoreNeeded--;
@@ -229,7 +388,7 @@ function draw() {
         let powerChoice = Math.random();
         switch (powerChoice <= POWER_CHANCE) {
             // Case for half-speed power-up
-            case (powerChoice <= (POWER_CHANCE / 4) && halfSpeedActive == false):
+            case (powerChoice <= (POWER_CHANCE / 4) && halfSpeedActive == false && halfSpeedInUse == false):
                 halfSpeedX = halfSpeedY = -box;
                 let hsIntersection = true;
                 let hsIntersectCount = 0;
@@ -324,7 +483,7 @@ function draw() {
             
             // Case for extra food power-up
             default:
-                if (extraActive == false) {
+                if (extraActive == false && (extraOneActive == false && extraTwoActive == false && extraThreeActive == false)) {
                     extraX = extraY = -box;
                     let extraIntersection = true;
                     let extraIntersectCount = 0;
@@ -366,12 +525,20 @@ function draw() {
     */
     if (snakeX == halfSpeed.x && snakeY == halfSpeed.y) {
         halfSpeedActive = false;
+        halfSpeedInUse = true;
+        if (drawDone == false) {
+            clearTimeout(powerDraw);
+            drawPowerImage(speedSRC);
+        }
+        else {
+            drawPowerImage(speedSRC);
+        }
         let counter = 15;
         let speedDifference = SPEED;
         SPEED *= 2;
         clearInterval(game);
         game = setInterval(draw, SPEED);
-        let countDown = setInterval(function () {
+        countDown = setInterval(function () {
             time.classList.add('animation');
             time.innerHTML = counter;
             counter--;
@@ -380,10 +547,12 @@ function draw() {
                 time.classList.remove('animation');
                 clearInterval(countDown);
                 SPEED -= speedDifference;
+                halfSpeedInUse = false;
                 clearInterval(game);
                 game = setInterval(draw, SPEED);
             }
         }, 1000);
+        
         halfSpeed = {
             x: -box,
             y: -box
@@ -392,8 +561,7 @@ function draw() {
 
     // If half-speed power-up is in play, it will be drawn in a static position
     if (halfSpeedActive == true) {
-        ctx.fillStyle = "yellow";
-        ctx.fillRect(halfSpeed.x, halfSpeed.y, box, box);
+        ctx.drawImage(speedImage, halfSpeed.x, halfSpeed.y, box, box);
     }
 
     /* Logic for colliding with -4 length power-up
@@ -401,6 +569,13 @@ function draw() {
     */
     if (snakeX == small.x && snakeY == small.y) {
         smallActive = false;
+        if (drawDone == false) {
+            clearTimeout(powerDraw);
+            drawPowerImage(smallSRC);
+        }
+        else {
+            drawPowerImage(smallSRC);
+        }
         for (let i = 1; i <= 4; i++) {
             if (snake.length >= 1) {
                 snake.pop();
@@ -414,16 +589,27 @@ function draw() {
 
     // If -4 length power-up is in play, it will be drawn in a static position
     if (smallActive == true) {
-        ctx.fillStyle = "blue";
-        ctx.fillRect(small.x, small.y, box, box);
+        ctx.drawImage(smallImage, small.x, small.y, box, box);
     }
 
     /* Logic for colliding with bonus points power-up
     Adds 10 points to current score without incrementing speed of game
     */
     if (snakeX == points.x && snakeY == points.y) {
+        clearTimeout(scoreTimeout);
         pointsActive = false;
+        if (drawDone == false) {
+            clearTimeout(powerDraw);
+            drawPowerImage(pointsSRC);
+        }
+        else {
+            drawPowerImage(pointsSRC);
+        }
         score += 10;
+        scoreElement.classList.add('animation');
+        scoreTimeout = setTimeout(function () {
+            scoreElement.classList.remove('animation');
+        }, 1000);
         points = {
             x: -box,
             y: -box
@@ -432,8 +618,7 @@ function draw() {
 
     // If bonus points power-up is in play, it will be drawn in a static position
     if (pointsActive == true) {
-        ctx.fillStyle = "orange";
-        ctx.fillRect(points.x, points.y, box, box);
+        ctx.drawImage(pointsImage, points.x, points.y, box, box);
     }
 
     /* Logic for colliding with extra tacos power-up
@@ -441,6 +626,17 @@ function draw() {
     */
     if (snakeX == extra.x && snakeY == extra.y) {
         extraActive = false;
+        if (drawDone == false) {
+            clearTimeout(powerDraw);
+            drawPowerImage(extraSRC);
+        }
+        else {
+            drawPowerImage(extraSRC);
+        }
+        extra = {
+            x: -box,
+            y: -box
+        }
         extraOneX = extraOneY = extraTwoX = extraTwoY = extraThreeX = extraThreeY = -box;
         let extraOneIntersection, extraTwoIntersection, extraThreeIntersection;
         extraOneIntersection = extraTwoIntersection = extraThreeIntersection = true;
@@ -469,8 +665,8 @@ function draw() {
             x: extraOneX,
             y: extraOneY
         }
-        
         extraOneActive = true;
+
         while (extraTwoIntersection == true) {
             extraTwoIntersectCount = 0;
             extraTwoX = ~~(Math.random() * COLUMNS) * box;
@@ -495,6 +691,7 @@ function draw() {
             y: extraTwoY
         }
         extraTwoActive = true;
+
         while (extraThreeIntersection == true) {
             extraThreeIntersectCount = 0;
             extraThreeX = ~~(Math.random() * COLUMNS) * box;
@@ -523,8 +720,7 @@ function draw() {
 
     // If extra tacos power-up is in play, it will be drawn in a static position
     if (extraActive == true) {
-        ctx.fillStyle = "gray";
-        ctx.fillRect(extra.x, extra.y, box, box);
+        ctx.drawImage(extraImage, extra.x, extra.y, box, box);
     }
 
     /* Logic for colliding with golden tacos
@@ -532,8 +728,20 @@ function draw() {
     */
     if (snakeX == extraOne.x && snakeY == extraOne.y || snakeX == extraTwo.x && snakeY == extraTwo.y ||
         snakeX == extraThree.x && snakeY == extraThree.y) {
+        clearTimeout(scoreTimeout);
+        if (drawDone == false) {
+            clearTimeout(powerDraw);
+            drawPowerImage(goldenSRC);
+        }
+        else {
+            drawPowerImage(goldenSRC);
+        }
         score += 2;
         scoreNeeded += 1;
+        scoreElement.classList.add('animation');
+        scoreTimeout = setTimeout(function () {
+            scoreElement.classList.remove('animation');
+        }, 1000);
         if (snakeX == extraOne.x && snakeY == extraOne.y) {
             extraOneActive = false;
             upgradeElement.innerHTML = scoreNeeded + " tacos until speedup";
@@ -562,20 +770,20 @@ function draw() {
 
     // If golden tacos are in play, it will be drawn in a static position
     if (extraOneActive == true || extraTwoActive == true || extraThreeActive == true) {
-        ctx.fillStyle = "black";
         if (extraOneActive == true) {
-            ctx.fillRect(extraOne.x, extraOne.y, box, box);
+            ctx.drawImage(goldenTaco, extraOne.x, extraOne.y, box, box);
         }
         if (extraTwoActive == true) {
-            ctx.fillRect(extraTwo.x, extraTwo.y, box, box);
+            ctx.drawImage(goldenTaco, extraTwo.x, extraTwo.y, box, box);
         }
         if (extraThreeActive == true) {
-            ctx.fillRect(extraThree.x, extraThree.y, box, box);
+            ctx.drawImage(goldenTaco, extraThree.x, extraThree.y, box, box);
         }
     }
 
     // Updates score, "score until speedup", and power-up UI
     scoreElement.innerHTML = score;
+    levelElement.innerHTML = level;
     upgradeElement.innerHTML = scoreNeeded + " tacos until speedup";
 
     // Determines how to move snake depending on the direction it is moving
@@ -602,6 +810,10 @@ function draw() {
     if (snakeX < 0 || snakeX > box * (COLUMNS - 1) || snakeY < 0 ||
         snakeY > ~~(box * (COLUMNS - 1) * 0.8) || collision(newHead, snake)) {
         clearInterval(game);
+        //clearInterval(countDown);
+        //time.classList.remove('animation');
+        //time.innerHTML = "";
+        //clearTimeout(scoreTimeout);
     }
 
     // Checks for a collision

@@ -21,58 +21,105 @@ body {
 
 #score-area {
     width: 300px;
-    height: 200px;
-    background-color: green;
+    height: 235px;
+    background-color: purple;
     position: relative;
-    font-family: "Candara";
+    font-family: "Bahnschrift";
+}
+
+#score-info {
+    font-size: 50pt;
+}
+
+#score-number,
+#level-number,
+#score-upgrade,
+#power-up {
+    margin: 0 auto;
+    display: inline;
+    float: left;
+}
+
+#score-number,
+#level-number {
+    height: 100px;
+    line-height: 100px;
+    text-align: center;
 }
 
 #score-number {
-    font-size: 50pt;
+    color: white;
+    width: 30%;
+    padding-left: 5%;
+}
+
+#level-number {
+    font-size: 30pt;
     color: white;
     text-align: center;
+    width: 65%;
 }
 
 #score-upgrade {
     font-size: 20pt;
     color: white;
     text-align: center;
+    width: 100%;
 }
 
 #text-space {
     width: 300px;
     height: 400px;
-    background-color: blue;
+    background-color: blueviolet;
     top: 200px;
     left: -300px;
     position: relative;
 }
 
-.timer-object {
-    justify-content: center;
-    align-items: center;
-    padding-top: 5px;
-    width: 75px;
-    height: 75px;
-    margin: 0 auto;
-    line-height: 75px;
-}
-
 #timer {
-    display: inline-block;
-    vertical-align: middle;
-    position: relative;
-    font-size: 40pt;
+    line-height: 75px;
     color: white;
     text-align: center;
     font-weight: bold;
-    width: 75px;
+    float: left;
+    width: 49%;
     height: 75px;
-    left: 50%;
-    transform: translate(-50%, 0);
-    position: absolute;
-    padding: 0;
+    margin: 0 auto;
+    display: inline;
+}
+
+#power-up {
+    height: 90px;
+    width: 300px;
+    display: inline;
+    float: left;
+    padding-top: 10px;
+    font-size: 40px;
+}
+
+#power-up-image {
+    height: 100px;
+    width: 40%;
+    padding-left: 2.5%;
+    line-height: 100px;
+    display: inline;
+    float: left;
     margin: 0;
+    text-align: center;
+}
+
+.power-image-changes {
+    width: 75px;
+    height: auto;
+    animation-name: power-flashing;
+    animation-duration: 1s;
+    animation-timing-function: ease-in-out;
+}
+
+.animation {
+    animation-name: flashing;
+    animation-duration: 1s;
+    animation-timing-function: ease-in-out;
 }
 
 #timer.animation {
@@ -85,14 +132,26 @@ body {
 @keyframes flashing {
     0% {
         color: white;
-        font-size: 30px;
+        font-size: 100%;
     }
     50% {
         color: red;
-        font-size: 60px;
+        font-size: 150%;
     }
     100% {
         color: white;
-        font-size: 30px;
+        font-size: 100%;
+    }
+}
+
+@keyframes power-flashing {
+    0% {
+        transform: scale(1, 1);
+    }
+    50% {
+        transform: scale(1.25, 1.25);
+    }
+    100% {
+        transform: scale(1, 1);
     }
 }
