@@ -1,14 +1,36 @@
+// Board elements
 const cvs = document.getElementById("snake");
 const ctx = cvs.getContext("2d");
 const boardCVS = document.getElementById("board");
 const boardCTX = boardCVS.getContext("2d");
-const TO_RADIANS = Math.PI/180;
+const TO_RADIANS = Math.PI / 180;
+// UI elements
 let scoreElement = document.getElementById("score-number");
 let levelElement = document.getElementById("number");
 let upgradeElement = document.getElementById("upgrade-number");
 let powerElement = document.getElementById("power-up");
 let powerImage = document.getElementById("power-up-image");
 let time = document.getElementById("timer");
+// Pop-up elements
+let table = document.getElementById("pop-up");
+let headText = document.getElementById("head-text");
+let questionText = document.getElementById("pop-up-text");
+let aCircle = document.getElementById("circle-a");
+let bCircle = document.getElementById("circle-b");
+let cCircle = document.getElementById("circle-c");
+let dCircle = document.getElementById("circle-d");
+let aCircleText = document.getElementById("a-circle-text");
+let bCircleText = document.getElementById("b-circle-text");
+let cCircleText = document.getElementById("c-circle-text");
+let dCircleText = document.getElementById("d-circle-text");
+let aText = document.getElementById("a-text");
+let bText = document.getElementById("b-text");
+let cText = document.getElementById("c-text");
+let dText = document.getElementById("d-text");
+let aDifficultyText = document.getElementById("power-a-info");
+let bDifficultyText = document.getElementById("power-b-info");
+let cDifficultyText = document.getElementById("power-c-info");
+let dDifficultyText = document.getElementById("power-d-info");
 
 //How many columns. There will be 0.8 times as many rows
 const COLUMNS = 25;
@@ -21,7 +43,7 @@ const UPGRADE = 10;
 let level = 1;
 
 //Chance for a power-up to spawn
-const POWER_CHANCE = 1.0;
+let POWER_CHANCE = 0.4;
 
 // The size of each square in the grid based off the number of columns
 const box = cvs.width / COLUMNS;
@@ -181,6 +203,84 @@ function direction() {
     else if (key == 40 && d != "UP") {
         d = "DOWN"
     }
+}
+
+function welcomeDifficulty(value) {
+    clearInterval(game);
+    ctx.clearRect(0, 0, cvs.width, cvs.height);
+    if (value == "circle-a") {
+        SPEED = 350;
+        MAX_SPEED = 150;
+        POWER_CHANCE = 0.6;
+    }
+    else if (value == "circle-b") {
+        SPEED = 250;
+        MAX_SPEED = 100;
+        POWER_CHANCE = 0.5;
+    }
+    else if (value == "circle-d") {
+        SPEED = 150;
+        MAX_SPEED = 50;
+        POWER_CHANCE = 0.3;
+    }
+    table.style.display = "none";
+    game = setInterval(draw, SPEED);
+}
+
+// Welcome function
+function welcome() {
+    headText.innerHTML = "Seasons Greetings!";
+    questionText.innerHTML = "Welcome to the Connie Boi and Paulie Girl 2-year anniversary snake game!<br/>" +
+        "The rules are simple. Read the descriptions for each power-up choose a difficulty and begin.<br/>" +
+        "There is a twist though. Touching a power-up is half the battle. You also need to answer a question about" +
+        "our relationship <strong>CORRECTLY</strong> if you want to receive its effects.<br/>Good luck!";
+
+    aCircleText.textContent = "0";
+    bCircleText.textContent = "1";
+    cCircleText.textContent = "2";
+    dCircleText.textContent = "3";
+
+    aText.innerHTML = "Paulie Girl Speed<br/>(If you have issues, the issue is you)<br/>";
+    aDifficultyText.innerHTML = "Speed: Very Slow<br/>Max Speed: Very Slow<br/>Power-ups: Very common";
+    bText.innerHTML = "Easy<br/>(For the... mechanically uninclined)<br/>";
+    bDifficultyText.innerHTML = "Speed: Slow<br/>Max Speed: Slow<br/>Power-ups: Common";
+    cText.innerHTML = "Normal<br/><br/>";
+    cDifficultyText.innerHTML = "Speed: Normal<br/>Max Speed: You get it<br/>Power-ups: Still get it";
+    dText.innerHTML = "Hard<br/>(Godspeed)<br/>";
+    dDifficultyText.innerHTML = "Speed: Fast<br/>Max Speed: Fast<br/>Power-ups: Uncommon";
+
+    aCircle.addEventListener("click", function (event) {
+        if (!event.target.closest('.button-class')) {
+            return;
+        }
+        else {
+            welcomeDifficulty(event.target.id);
+        }
+        }, false);
+    bCircle.addEventListener("click", function (event) {
+        if (!event.target.closest('.button-class')) {
+            return;
+        }
+        else {
+            welcomeDifficulty(event.target.id);
+        }
+        }, false);
+    cCircle.addEventListener("click", function (event) {
+        if (!event.target.closest('.button-class')) {
+            return;
+        }
+        else {
+            welcomeDifficulty(event.target.id);
+        }
+        }, false);
+    dCircle.addEventListener("click", function (event) {
+        if (!event.target.closest('.button-class')) {
+            return;
+        }
+        else {
+            welcomeDifficulty(event.target.id);
+        }
+        }, false);
 }
 
 // Draws initial board
@@ -395,9 +495,10 @@ function draw() {
 
         // Determines which (if any) power-up will spawn
         let powerChoice = Math.random();
-        switch (powerChoice <= POWER_CHANCE) {
+
+        if (powerChoice <= POWER_CHANCE) {
             // Case for half-speed power-up
-            case (powerChoice <= (POWER_CHANCE / 4) && halfSpeedActive == false && halfSpeedInUse == false):
+            if (powerChoice <= (POWER_CHANCE / 4) && halfSpeedActive == false && halfSpeedInUse == false) {
                 halfSpeedX = halfSpeedY = -box;
                 let hsIntersection = true;
                 let hsIntersectCount = 0;
@@ -405,7 +506,7 @@ function draw() {
                     hsIntersectCount = 0;
                     halfSpeedX = ~~(Math.random() * COLUMNS) * box;
                     halfSpeedY = ~~(Math.random() * (COLUMNS * 0.8)) * box;
-                    for (let i = 0; i < snake.length; i++){
+                    for (let i = 0; i < snake.length; i++) {
                         if (snake[i].x == halfSpeedX && snake[i].y == halfSpeedY) {
                             hsIntersectCount++;
                         }
@@ -425,10 +526,10 @@ function draw() {
                     y: halfSpeedY
                 }
                 halfSpeedActive = true;
-                break;
+            }
             
             // Case for -4 length power-up
-            case (powerChoice <= ((POWER_CHANCE / 4) * 2) && smallActive == false):
+            else if (powerChoice <= ((POWER_CHANCE / 4) * 2) && smallActive == false) {
                 smallX = smallY = -box;
                 let smallIntersection = true;
                 let smallIntersectCount = 0;
@@ -436,14 +537,14 @@ function draw() {
                     smallIntersectCount = 0;
                     smallX = ~~(Math.random() * COLUMNS) * box;
                     smallY = ~~(Math.random() * (COLUMNS * 0.8)) * box;
-                    for (let i = 0; i < snake.length; i++){
+                    for (let i = 0; i < snake.length; i++) {
                         if (snake[i].x == smallX && snake[i].y == smallY) {
                             smallIntersectCount++;
                         }
                     }
                     if ((smallX == extraOneX && smallY == extraOneY) || (smallX == extraTwoX && smallY == extraTwoY) ||
                         (smallX == extraThreeX && smallY == extraThreeY) || (smallX == halfSpeed.x && smallY == halfSpeed.y) ||
-                        (smallX == points.x && smallY == points.y) || (smallX == food.x && smallY == food.y) || 
+                        (smallX == points.x && smallY == points.y) || (smallX == food.x && smallY == food.y) ||
                         (smallX == extra.x && smallY == extra.y)) {
                         smallIntersectCount++;
                     }
@@ -456,10 +557,10 @@ function draw() {
                     y: smallY
                 }
                 smallActive = true;
-                break;
+            }
             
             // Case for bonus points power-up
-            case (powerChoice <= ((POWER_CHANCE / 4) * 3) && pointsActive == false):
+            else if (powerChoice <= ((POWER_CHANCE / 4) * 3) && pointsActive == false) {
                 pointsX = pointsY = -box;
                 let pointsIntersection = true;
                 let pointsIntersectCount = 0;
@@ -467,7 +568,7 @@ function draw() {
                     pointsIntersectCount = 0;
                     pointsX = ~~(Math.random() * COLUMNS) * box;
                     pointsY = ~~(Math.random() * (COLUMNS * 0.8)) * box;
-                    for (let i = 0; i < snake.length; i++){
+                    for (let i = 0; i < snake.length; i++) {
                         if ((snake[i].x == pointsX && snake[i].y == pointsY) ||
                             (food.x == pointsX && food.y == pointsY)) {
                             pointsIntersectCount++;
@@ -475,7 +576,7 @@ function draw() {
                     }
                     if ((pointsX == extraOneX && pointsY == extraOneY) || (pointsX == extraTwoX && pointsY == extraTwoY) ||
                         (pointsX == extraThreeX && pointsY == extraThreeY) || (pointsX == halfSpeed.x && pointsY == halfSpeed.y) ||
-                        (pointsX == small.x && pointsY == small.y) || (pointsX == food.x && pointsY == food.y) || 
+                        (pointsX == small.x && pointsY == small.y) || (pointsX == food.x && pointsY == food.y) ||
                         (pointsX == extra.x && pointsY == extra.y)) {
                         pointsIntersectCount++;
                     }
@@ -488,39 +589,38 @@ function draw() {
                     y: pointsY
                 }
                 pointsActive = true;
-                break;
+            }
             
             // Case for extra food power-up
-            default:
-                if (extraActive == false && (extraOneActive == false && extraTwoActive == false && extraThreeActive == false)) {
-                    extraX = extraY = -box;
-                    let extraIntersection = true;
-                    let extraIntersectCount = 0;
-                    while (extraIntersection == true) {
-                        extraIntersectCount = 0;
-                        extraX = ~~(Math.random() * COLUMNS) * box;
-                        extraY = ~~(Math.random() * (COLUMNS * 0.8)) * box;
-                        for (let i = 0; i < snake.length; i++){
-                            if (snake[i].x == extraX && snake[i].y == extraY) {
-                                extraIntersectCount++;
-                            }
-                        }
-                        if ((extraX == extraOneX && extraY == extraOneY) || (extraX == extraTwoX && extraY == extraTwoY) ||
-                            (extraX == extraThreeX && extraY == extraThreeY) || (extraX == halfSpeed.x && extraY == halfSpeed.y) ||
-                            (extraX == small.x && extraY == small.y) || (extraX == food.x && extraY == food.y) ||
-                            (extraX == points.x && extraY == points.y)) {
+            else if (extraActive == false && (extraOneActive == false && extraTwoActive == false && extraThreeActive == false)) {
+                extraX = extraY = -box;
+                let extraIntersection = true;
+                let extraIntersectCount = 0;
+                while (extraIntersection == true) {
+                    extraIntersectCount = 0;
+                    extraX = ~~(Math.random() * COLUMNS) * box;
+                    extraY = ~~(Math.random() * (COLUMNS * 0.8)) * box;
+                    for (let i = 0; i < snake.length; i++) {
+                        if (snake[i].x == extraX && snake[i].y == extraY) {
                             extraIntersectCount++;
                         }
-                        if (extraIntersectCount == 0) {
-                            extraIntersection = false;
-                        }
                     }
-                    extra = {
-                        x: extraX,
-                        y: extraY
+                    if ((extraX == extraOneX && extraY == extraOneY) || (extraX == extraTwoX && extraY == extraTwoY) ||
+                        (extraX == extraThreeX && extraY == extraThreeY) || (extraX == halfSpeed.x && extraY == halfSpeed.y) ||
+                        (extraX == small.x && extraY == small.y) || (extraX == food.x && extraY == food.y) ||
+                        (extraX == points.x && extraY == points.y)) {
+                        extraIntersectCount++;
                     }
-                    extraActive = true;
+                    if (extraIntersectCount == 0) {
+                        extraIntersection = false;
+                    }
                 }
+                extra = {
+                    x: extraX,
+                    y: extraY
+                }
+                extraActive = true;
+            }
         }
     }
     else {
@@ -851,3 +951,6 @@ function draw() {
 // Starts game
 drawBoard();
 let game = setInterval(draw, SPEED);
+clearInterval(game);
+ctx.clearRect(0, 0, cvs.width, cvs.height);
+welcome();

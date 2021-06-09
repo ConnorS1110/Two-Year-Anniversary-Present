@@ -6,17 +6,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Happy Anniversary My Love</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="img/head.webp">
     <script src="snake.js" defer></script>
 </head>
 <body>
+    <div id="pop-up">
+        <table id="pop-up-content">
+            <tr id="row1">
+                <td colspan="4">
+                    <p id="head-text"></p>
+                    <img id="pop-up-image">
+                </td>
+            </tr>
+            <tr id="row2">
+                <td colspan="4"><p id="pop-up-text"></p></td>
+            </tr>
+            <tr id="power-images">
+                <td id="half-speed-image"><img src="img/speed.webp" width="50px" height="auto"></td>
+                <td id="small-image"><img src="img/small.webp" width="50px" height="auto"></td>
+                <td id="bonus-image"><img src="img/points.webp" width="50px" height="auto"></td>
+                <td id="extra-image"><img src="img/extra.webp" width="50px" height="auto"><img src="img/golden_taco.webp" width="50px" height="auto"></td>
+            </tr>
+            <tr id="power-info">
+                <td id="half-speed-info"><p>Half Speed</p><br>Cuts speed in half for 15 seconds</td>
+                <td id="small-info"><p>-4 Length</p><br>Removes 4 tail pieces<br>(if possible)</td>
+                <td id="bonus-info"><p>Bonus Points</p><br>No explanation needed</td>
+                <td id="extra-info"><p>Golden Tacos</p><br>Left: Spawns 3 golden tacos<br>Right: +2 score & +1 tacos needed to level up</td>
+            </tr>
+            <tr id="row3">
+                <td id="a">
+                    <button class="button-class">
+                        <svg class="answer-circle-container">
+                            <circle class="answer-circle" id="circle-a"></circle>
+                            <text x="50%" y="50%" dy=".3em" id="a-circle-text"></text>
+                        </svg>
+                    </button>
+                </td>
+                <td id="b">
+                    <button class="button-class">
+                        <svg class="answer-circle-container">
+                            <circle class="answer-circle" id="circle-b"></circle>
+                            <text x="50%" y="50%" dy=".3em" id="b-circle-text"></text>
+                        </svg>
+                    </button>
+                </td>
+                <td id="c">
+                    <button class="button-class">
+                        <svg class="answer-circle-container">
+                            <circle class="answer-circle" id="circle-c"></circle>
+                            <text x="50%" y="50%" dy=".3em" id="c-circle-text"></text>
+                        </svg>
+                    </button>
+                </td>
+                <td id="d">
+                    <button class="button-class">
+                        <svg class="answer-circle-container">
+                            <circle class="answer-circle" id="circle-d"></circle>
+                            <text x="50%" y="50%" dy=".3em" id="d-circle-text"></text>
+                        </svg>
+                    </button>
+                </td>
+            </tr>
+            <tr id="row4">
+                <td id="a-answer"><p id="a-text"></p><p class="difficulty-info" id="power-a-info"></p></td>
+                <td id="b-answer"><p id="b-text"></p><p class="difficulty-info" id="power-b-info"></p></td>
+                <td id="c-answer"><p id="c-text"></p><p class="difficulty-info" id="power-c-info"></p></td>
+                <td id="d-answer"><p id="d-text"></p><p class="difficulty-info" id="power-d-info"></p></td>
+            </tr>
+        </table>
+    </div>
     <canvas id="board" width="900" height="720"></canvas>
     <canvas id="snake" width="900" height="720"></canvas>
     <div id="score-area">
         <div id="score-info">
-            <div id="score-number"></div>
-            <div id="level-number">Level: <span id="number"></span></div>
+            <div id="score-number">0</div>
+            <div id="level-number">Level: <span id="number">1</span></div>
         </div>
-        <div id="score-upgrade"><span id="upgrade-number"></span> tacos until speed-up</div>
+        <div id="score-upgrade"><span id="upgrade-number">10</span> tacos until speed-up</div>
         <div id="power-up">
             <div id="power-up-image"></div>
             <div id="timer"></div>

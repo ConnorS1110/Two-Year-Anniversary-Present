@@ -1,3 +1,14 @@
+## [1.4] - 06-09-2021
+
+### Added
+
+-   Created pop-up UI that explains the game and lets you choose a difficulty mode
+-   Changed favicon from default
+
+### Fixed
+
+-   Updated logic for power-ups to prevent issue causing half-speed to keep moving when eating a taco
+
 ## [1.3.1] - 06-08-2021
 
 ### Changed

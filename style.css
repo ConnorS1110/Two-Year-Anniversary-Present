@@ -5,6 +5,186 @@ body {
     display: flex;
 }
 
+#pop-up {
+    width: 800px;
+    height: 600px;
+    border-radius: 50px;
+    background: #73ad21;
+    opacity: 0.75;
+    position: absolute;
+    left: 50px;
+    top: 60px;
+    justify-content: center;
+    display: flex;
+}
+
+table,
+tr,
+td {
+    font-family: "Bahnschrift";
+    border: 0px solid black;
+    border-collapse: collapse;
+    padding: 0;
+    margin: 0 auto;
+}
+
+#pop-up-content {
+    width: 90%;
+    height: 90%;
+    align-self: center;
+}
+
+#head-text {
+    font-size: 30pt;
+    font-weight: bold;
+    text-align: center;
+    margin: 20px;
+}
+
+#pop-up-text {
+    font-size: 12pt;
+    text-align: center;
+    margin: 0 auto;
+}
+
+#power-images {
+    height: 10%;
+    text-align: center;
+}
+
+#power-info {
+    height: 20%;
+    text-align: center;
+    vertical-align: initial;
+    font-size: 10pt;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    padding: 0;
+}
+
+#power-info p {
+    font-size: 12pt;
+    font-weight: bold;
+    margin: 0;
+}
+
+#half-speed-image,
+#small-image,
+#bonus-image,
+#extra-image {
+    text-align: center;
+}
+
+#extra-image img {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+#row3 {
+    height: 32px;
+    text-align: center;
+}
+
+#row4 {
+    height: 22%;
+    padding: 0;
+}
+
+#a,
+#b,
+#c,
+#d {
+    width: 25%;
+}
+
+#b,
+#c,
+#d,
+#b-answer,
+#c-answer,
+#d-answer {
+    border-left: 3px solid black;
+    border-collapse: collapse;
+}
+
+#a-answer,
+#b-answer,
+#c-answer,
+#d-answer {
+    vertical-align: top;
+}
+
+#a-text,
+#b-text,
+#c-text,
+#d-text {
+    text-align: center;
+    font-size: 12pt;
+    color: white;
+    margin-top: 5px;
+    margin-bottom: 0;
+    padding: 0;
+}
+
+.difficulty-info {
+    text-align: left;
+    font-size: 10pt;
+    margin: 0 auto;
+    padding-left: 5px;
+    position: absolute;
+    bottom: 5%;
+}
+
+.button-class {
+    background-color: transparent;
+    border: 0;
+    padding: 0;
+    outline: none;
+}
+
+#a-circle-text,
+#b-circle-text,
+#c-circle-text,
+#d-circle-text {
+    vertical-align: middle;
+    text-anchor: middle;
+    font-size: 20px;
+    fill: white;
+    pointer-events: none;
+}
+
+.answer-circle-container {
+    width: 32px;
+    height: 32px;
+    vertical-align: middle;
+}
+
+.answer-circle {
+    cx: 16px;
+    cy: 16px;
+    r: 15px;
+    stroke: black;
+    stroke-width: 2px;
+    fill: transparent;
+    transition: fill 0.5s ease-in-out;
+}
+
+#circle-a:hover {
+    fill: purple;
+}
+
+#circle-b:hover {
+    fill: green;
+}
+
+#circle-c:hover {
+    fill: goldenrod;
+}
+
+#circle-d:hover {
+    fill: red;
+}
+
 #snake {
     left: 0;
     top: 0;
