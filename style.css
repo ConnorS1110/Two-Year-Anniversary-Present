@@ -3,14 +3,14 @@ body {
     background-color: black;
     float: left;
     display: flex;
+    transform: scale(1, 1);
 }
 
 #pop-up {
     width: 800px;
     height: 600px;
     border-radius: 50px;
-    background: #73ad21;
-    opacity: 0.75;
+    background: rgba(115, 173, 33, 0.75);
     position: absolute;
     left: 50px;
     top: 60px;
@@ -39,12 +39,14 @@ td {
     font-weight: bold;
     text-align: center;
     margin: 20px;
+    vertical-align: middle;
 }
 
 #pop-up-text {
     font-size: 12pt;
     text-align: center;
     margin: 0 auto;
+    padding-bottom: 0;
 }
 
 #power-images {
@@ -159,6 +161,12 @@ td {
     vertical-align: middle;
 }
 
+.bigger-circle-container {
+    width: 42px;
+    height: 42px;
+    vertical-align: middle;
+}
+
 .answer-circle {
     cx: 16px;
     cy: 16px;
@@ -173,7 +181,8 @@ td {
     fill: purple;
 }
 
-#circle-b:hover {
+#circle-b:hover,
+#circle-a1:hover {
     fill: green;
 }
 
@@ -181,7 +190,8 @@ td {
     fill: goldenrod;
 }
 
-#circle-d:hover {
+#circle-d:hover,
+#circle-b1:hover {
     fill: red;
 }
 

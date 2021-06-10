@@ -4,6 +4,10 @@ const ctx = cvs.getContext("2d");
 const boardCVS = document.getElementById("board");
 const boardCTX = boardCVS.getContext("2d");
 const TO_RADIANS = Math.PI / 180;
+const viewWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+const viewHeight = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+const contentWidth = cvs.width + document.getElementById("score-area").offsetWidth;
+const contentHeight = cvs.height;
 // UI elements
 let scoreElement = document.getElementById("score-number");
 let levelElement = document.getElementById("number");
@@ -15,6 +19,12 @@ let time = document.getElementById("timer");
 let table = document.getElementById("pop-up");
 let headText = document.getElementById("head-text");
 let questionText = document.getElementById("pop-up-text");
+let rowTwo = document.getElementById("row2");
+let powerImageRow = document.getElementById("power-images");
+let powerInfoRow = document.getElementById("power-info");
+let circleRow = document.getElementById("row3");
+let rowFour = document.getElementById("row4");
+let circleContainers = document.getElementsByClassName("answer-circle-container");
 let aCircle = document.getElementById("circle-a");
 let bCircle = document.getElementById("circle-b");
 let cCircle = document.getElementById("circle-c");
@@ -23,6 +33,14 @@ let aCircleText = document.getElementById("a-circle-text");
 let bCircleText = document.getElementById("b-circle-text");
 let cCircleText = document.getElementById("c-circle-text");
 let dCircleText = document.getElementById("d-circle-text");
+let aCircleCell = document.getElementById("a");
+let bCircleCell = document.getElementById("b");
+let cCircleCell = document.getElementById("c");
+let dCircleCell = document.getElementById("d");
+let aAnswerCell = document.getElementById("a-answer");
+let bAnswerCell = document.getElementById("b-answer");
+let cAnswerCell = document.getElementById("c-answer");
+let dAnswerCell = document.getElementById("d-answer");
 let aText = document.getElementById("a-text");
 let bText = document.getElementById("b-text");
 let cText = document.getElementById("c-text");
@@ -37,6 +55,9 @@ const COLUMNS = 25;
 
 //How many initial ms for each move tick
 let SPEED = 200;
+
+// The max speed in ms the game will run
+let MAX_SPEED = 50;
 
 //Score needed for speedup and initial level
 const UPGRADE = 10;
@@ -205,35 +226,52 @@ function direction() {
     }
 }
 
-function welcomeDifficulty(value) {
-    clearInterval(game);
-    ctx.clearRect(0, 0, cvs.width, cvs.height);
-    if (value == "circle-a") {
-        SPEED = 350;
-        MAX_SPEED = 150;
-        POWER_CHANCE = 0.6;
+// Default pop-up style
+function defaultStyle() {
+    table.style.display = "flex";
+    table.style.height = "600px";
+    table.style.top = "60px";
+    questionText.style.paddingBottom = "0";
+    powerImageRow.style.display = "table-row";
+    powerInfoRow.style.display = "table-row";
+    circleRow.style.height = "32px";
+    for (let i = 0; i < circleContainers.length; i++){
+        circleContainers[i].style.width = "32px";
+        circleContainers[i].style.height = "32px";
     }
-    else if (value == "circle-b") {
-        SPEED = 250;
-        MAX_SPEED = 100;
-        POWER_CHANCE = 0.5;
-    }
-    else if (value == "circle-d") {
-        SPEED = 150;
-        MAX_SPEED = 50;
-        POWER_CHANCE = 0.3;
-    }
-    table.style.display = "none";
-    game = setInterval(draw, SPEED);
+    aCircle.setAttribute("id", "circle-a");
+    bCircle.setAttribute("id", "circle-b");
+    cCircle.setAttribute("id", "circle-c");
+    dCircle.setAttribute("id", "circle-d");
+    aCircle.style.r = "15px";
+    aCircle.style.cx = "16px";
+    aCircle.style.cy = "16px";
+    bCircle.style.r = "15px";
+    bCircle.style.cx = "16px";
+    bCircle.style.cy = "16px";
+    cCircle.style.r = "15px";
+    cCircle.style.cx = "16px";
+    cCircle.style.cy = "16px";
+    dCircle.style.r = "15px";
+    dCircle.style.cx = "16px";
+    dCircle.style.cy = "16px";
+    aCircleCell.style.display = "table-cell";
+    aAnswerCell.style.display = "table-cell";
+    bCircleCell.style.display = "table-cell";
+    bAnswerCell.style.display = "table-cell";
+    cCircleCell.style.display = "table-cell";
+    cAnswerCell.style.display = "table-cell";
+    dCircleCell.style.display = "table-cell";
+    dAnswerCell.style.display = "table-cell";
 }
 
 // Welcome function
 function welcome() {
     headText.innerHTML = "Seasons Greetings!";
     questionText.innerHTML = "Welcome to the Connie Boi and Paulie Girl 2-year anniversary snake game!<br/>" +
-        "The rules are simple. Read the descriptions for each power-up choose a difficulty and begin.<br/>" +
-        "There is a twist though. Touching a power-up is half the battle. You also need to answer a question about" +
-        "our relationship <strong>CORRECTLY</strong> if you want to receive its effects.<br/>Good luck!";
+        "The rules are simple. Read the descriptions for each power-up, choose a difficulty, and begin.<br/>" +
+        "There is a twist though. Touching a power-up is half the battle. You also need to answer a question about " +
+        "our relationship <strong>CORRECTLY</strong> if you want to receive its effects.<br/><br/>Good luck!";
 
     aCircleText.textContent = "0";
     bCircleText.textContent = "1";
@@ -249,38 +287,197 @@ function welcome() {
     dText.innerHTML = "Hard<br/>(Godspeed)<br/>";
     dDifficultyText.innerHTML = "Speed: Fast<br/>Max Speed: Fast<br/>Power-ups: Uncommon";
 
-    aCircle.addEventListener("click", function (event) {
-        if (!event.target.closest('.button-class')) {
-            return;
+    aCircle.addEventListener("click", welcomeDifficulty, {once: true});
+    bCircle.addEventListener("click", welcomeDifficulty, {once: true});
+    cCircle.addEventListener("click", welcomeDifficulty, {once: true});
+    dCircle.addEventListener("click", welcomeDifficulty, {once: true});
+}
+
+// Determines values for game variables based off welcome screen input
+function welcomeDifficulty(event) {
+    gameReset();
+    powerImageRow.style.display = "table-row";
+    powerInfoRow.style.display = "table-row";
+    if (event.target.id == "circle-a") {
+        SPEED = 350;
+        MAX_SPEED = 150;
+        POWER_CHANCE = 0.6;
+    }
+    else if (event.target.id == "circle-b") {
+        SPEED = 250;
+        MAX_SPEED = 100;
+        POWER_CHANCE = 0.5;
+    }
+    else if (event.target.id == "circle-c") {
+    SPEED = 200;
+    MAX_SPEED = 50;
+    POWER_CHANCE = 0.4;
+    }
+    else if (event.target.id == "circle-d") {
+        SPEED = 150;
+        MAX_SPEED = 50;
+        POWER_CHANCE = 0.3;
+    }
+    powerImageRow.style.display = "none";
+    powerInfoRow.style.display = "none";
+    table.style.display = "none";
+    game = setInterval(draw, SPEED);
+}
+
+function gameReset() {
+    d = "";
+    clearInterval(game);
+    ctx.clearRect(0, 0, cvs.width, cvs.height);
+    snake.length = 1;
+    snake[0] = {
+    x: (~~(COLUMNS / 2) - 1) * box,
+    y: (~~(COLUMNS / 2) - 2) * box
+    }
+    // Initializes taco location
+    foodX, foodY = 0;
+    foodIntersection = true;
+    foodIntersectCount = 0;
+    while (foodIntersection == true) {
+        foodIntersectCount = 0;
+        foodX = ~~(Math.random() * COLUMNS) * box;
+        foodY = ~~(Math.random() * (COLUMNS * 0.8)) * box;
+        if (snake[0].x == foodX && snake[0].y == foodY) {
+                foodIntersectCount++;
+            }
+        if (foodIntersectCount == 0) {
+            foodIntersection = false;
         }
-        else {
-            welcomeDifficulty(event.target.id);
-        }
-        }, false);
-    bCircle.addEventListener("click", function (event) {
-        if (!event.target.closest('.button-class')) {
-            return;
-        }
-        else {
-            welcomeDifficulty(event.target.id);
-        }
-        }, false);
-    cCircle.addEventListener("click", function (event) {
-        if (!event.target.closest('.button-class')) {
-            return;
-        }
-        else {
-            welcomeDifficulty(event.target.id);
-        }
-        }, false);
-    dCircle.addEventListener("click", function (event) {
-        if (!event.target.closest('.button-class')) {
-            return;
-        }
-        else {
-            welcomeDifficulty(event.target.id);
-        }
-        }, false);
+    }
+    food = {
+        x: foodX,
+        y: foodY
+    }
+
+    // Initializes half-speed power-up variables
+    halfSpeedActive = false;
+    halfSpeedInUse = false;
+    halfSpeed = {
+        x: -box,
+        y: -box
+    }
+
+    // Initializes -4 length power-up variables
+    smallActive = false;
+    small = {
+        x: -box,
+        y: -box
+    }
+
+    // Initializes bonus points power-up variables
+    pointsActive = false;
+    points = {
+        x: -box,
+        y: -box
+    }
+
+    // Initializes extra tacos power-up variables
+    extraActive = false;
+    extra = {
+        x: -box,
+        y: -box
+    }
+
+    // Initializes extra taco 1 variables
+    extraOneActive = false;
+    extraOne = {
+        x: -box,
+        y: -box
+    }
+
+    // Initializes extra taco 2 variables
+    extraTwoActive = false;
+    extraTwo = {
+        x: -box,
+        y: -box
+    }
+
+    // Initializes extra taco 3 variables
+    extraThreeActive = false;
+    extraThree = {
+        x: -box,
+        y: -box
+    }
+
+    // Initializes the score and score until speed increase variables
+    score = 0;
+    scoreNeeded = UPGRADE;
+}
+
+// Game over function
+function gameOver() {
+    gameOverStyle();
+
+    aCircle.addEventListener("click", gameOverLogic, {once: true});
+    bCircle.addEventListener("click", gameOverLogic, {once: true});
+}
+
+// Game over logic
+function gameOverLogic(event) {
+    if (event.target.id == "circle-a1") {
+        defaultStyle();
+        welcome();
+    }
+    else if (event.target.id == "circle-b1") {
+        table.style.display = "flex";
+        rowTwo.style.display = "none";
+        powerImageRow.style.display = "none";
+        powerInfoRow.style.display = "none";
+        circleRow.style.display = "none";
+        rowFour.style.display = "none";
+        headText.style.fontSize = "150pt";
+        headText.innerHTML = "BORING";
+        setTimeout(function () {
+            document.body.style.display = "none";
+        }, 5000);
+    }
+}
+
+// CSS style for game over window
+function gameOverStyle() {
+    table.style.display = "flex";
+    table.style.height = "400px";
+    table.style.top = "160px";
+    questionText.style.paddingBottom = "30px";
+    powerImageRow.style.display = "none";
+    powerInfoRow.style.display = "none";
+    circleRow.style.height = "75px";
+    circleContainers[0].style.width = "42px";
+    circleContainers[0].style.height = "42px";
+    circleContainers[1].style.width = "42px";
+    circleContainers[1].style.height = "42px";
+    aCircle.setAttribute("id", "circle-a1");
+    bCircle.setAttribute("id", "circle-b1");
+    aCircle.style.r = "20px";
+    aCircle.style.cx = "21px";
+    aCircle.style.cy = "21px";
+    bCircle.style.r = "20px";
+    bCircle.style.cx = "21px";
+    bCircle.style.cy = "21px";
+    cCircleCell.style.display = "none";
+    cAnswerCell.style.display = "none";
+    dCircleCell.style.display = "none";
+    dAnswerCell.style.display = "none";
+
+    headText.innerHTML = "You Died";
+    questionText.innerHTML = "What are you stupid? You can do better than <span style=\"font-size:20pt; color:red\";> " + score + "</span><br><br>" +
+    "<span style=\"font-size:20pt;\";>Do you want to play again?";
+
+    aCircleText.textContent = "Yes";
+    bCircleText.textContent = "No";
+    cCircleText.textContent = "";
+    dCircleText.textContent = "";
+
+    aText.innerHTML = "You don't have the guts";
+    aDifficultyText.innerHTML = "";
+    bText.innerHTML = "Coward";
+    bDifficultyText.innerHTML = "";
+    cDifficultyText.innerHTML = "";
+    dDifficultyText.innerHTML = "";
 }
 
 // Draws initial board
@@ -296,6 +493,18 @@ function drawBoard() {
                 boardCTX.fillRect(box * i, box * j, box, box);
             }
         }
+    }
+}
+
+// Calculates proper zoom to fit game to page
+function zoomPage() {
+    if ((viewWidth / viewHeight) > (contentWidth / contentHeight)) {
+        document.body.style.transformOrigin = "top left";
+        document.body.style.transform = "scale(" + (viewHeight / contentHeight) * 1 + ", " + (viewHeight / contentHeight) * 1 + ")";
+    }
+    else {
+        document.body.style.transformOrigin = "top left";
+        document.body.style.transform = "scale(" + (viewWidth / contentWidth) * 1 + ", " + (viewWidth / contentWidth) * 1 + ")";
     }
 }
 
@@ -454,7 +663,7 @@ function draw() {
         
         /* If score is a multiple of speed upgrade interval, the time is sped
         up by 20ms and the interval of the game is reset */
-        if (scoreNeeded % UPGRADE == 1 && SPEED >= 50 && scoreNeeded < 10) {
+        if (scoreNeeded % UPGRADE == 1 && SPEED >= MAX_SPEED && scoreNeeded < 10) {
             SPEED -= 20;
             clearInterval(game);
             game = setInterval(draw, SPEED);
@@ -932,6 +1141,7 @@ function draw() {
         if (drawDone == false && firstPower == true) {
             revertPowerImage();
         }
+        gameOver();
     }
 
     // Checks for a collision
@@ -950,7 +1160,7 @@ function draw() {
 
 // Starts game
 drawBoard();
+zoomPage();
 let game = setInterval(draw, SPEED);
-clearInterval(game);
-ctx.clearRect(0, 0, cvs.width, cvs.height);
 welcome();
+//gameOver();

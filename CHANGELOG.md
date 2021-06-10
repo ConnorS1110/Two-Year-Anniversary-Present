@@ -1,3 +1,17 @@
+## [1.5] - 06-10-2021
+
+### Added
+
+-   Added functionality to the pop-up UI to let you restart the game when you die
+
+### Changed
+
+-   Force the board to occupy the entire width or height of the viewport (whichever fills up first)
+
+### Fixed
+
+-   Updated functionality of the pop-up UI that was incorrectly executing the wrong functions when clicking a button
+
 ## [1.4] - 06-09-2021
 
 ### Added
