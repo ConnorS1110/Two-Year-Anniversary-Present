@@ -1,3 +1,19 @@
+## [1.6] - 06-11-2021
+
+### Added
+
+-   Implemented 4-choice and 3-choice questions
+
+### Changed
+
+-   Updated sizings of pop-up UI
+-   Split functions for pop-up UI into a separate file to improve code readability
+
+### Fixed
+
+-   Fixed logic for -4 length power-up that was also removing the head if your length was less than 4
+-   Fixed issue causing incorrect events to stay attached to buttons after they were needed
+
 ## [1.5] - 06-10-2021
 
 ### Added
