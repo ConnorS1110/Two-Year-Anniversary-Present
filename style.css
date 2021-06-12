@@ -177,6 +177,23 @@ td {
     transition: fill 0.5s ease-in-out;
 }
 
+.answer-circle-active {
+    cx: 16px;
+    cy: 16px;
+    r: 15px;
+    stroke: black;
+    stroke-width: 2px;
+    fill: transparent;
+    transition: fill 0.5s ease-in-out;
+}
+
+.answer-circle-active#circle-a:hover,
+.answer-circle-active#circle-b:hover,
+.answer-circle-active#circle-c:hover,
+.answer-circle-active#circle-d:hover {
+    fill: purple;
+}
+
 #circle-a:hover {
     fill: purple;
 }
@@ -317,6 +334,13 @@ td {
     animation-timing-function: ease-in-out;
 }
 
+.animation-timer {
+    animation-name: flashing-timer;
+    animation-duration: 1s;
+    animation-iteration-count: 5;
+    animation-timing-function: ease-in-out;
+}
+
 #timer.animation {
     animation-name: flashing;
     animation-duration: 1s;
@@ -336,6 +360,21 @@ td {
     100% {
         color: white;
         font-size: 100%;
+    }
+}
+
+@keyframes flashing-timer {
+    0% {
+        color: white;
+        font-size: 150pt;
+    }
+    50% {
+        color: red;
+        font-size: 200pt;
+    }
+    100% {
+        color: white;
+        font-size: 150pt;
     }
 }
 

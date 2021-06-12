@@ -1,3 +1,20 @@
+## [1.6.1] - 06-11-2021
+
+### Added
+
+-   Implemented true/false questions
+
+### Changed
+
+-   Changed logic on game over to leave a black screen when pushing no on play again UI to prevent a harsh white light on non-dark mode browser configurations
+-   Updated welcome instructions to explain how to move
+-   Further updated pop-up sizings
+
+### Fixed
+
+-   Fixed spawn logic for power-ups that made an unequal chance for all types of power-ups
+-   Fixed issue allowing you to move on the welcome screen
+
 ## [1.6] - 06-11-2021
 
 ### Added

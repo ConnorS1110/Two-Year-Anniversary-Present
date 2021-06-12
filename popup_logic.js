@@ -1,4 +1,5 @@
 // UI elements
+let scoreArea = document.getElementById("score-area");
 let scoreElement = document.getElementById("score-number");
 let levelElement = document.getElementById("number");
 let upgradeElement = document.getElementById("upgrade-number");
@@ -69,6 +70,10 @@ function defaultStyle() {
     bCircle.setAttribute("id", "circle-b");
     cCircle.setAttribute("id", "circle-c");
     dCircle.setAttribute("id", "circle-d");
+    aCircle.setAttribute("class", "answer-circle");
+    bCircle.setAttribute("class", "answer-circle");
+    cCircle.setAttribute("class", "answer-circle");
+    dCircle.setAttribute("class", "answer-circle");
     aCircle.style.r = "15px";
     aCircle.style.cx = "16px";
     aCircle.style.cy = "16px";
@@ -205,21 +210,13 @@ function justTextStyle() {
 // Golden taco point changes
 function goldenScore() {
     clearTimeout(scoreTimeout);
-    if (drawDone == false && firstPower == true) {
-        clearTimeout(powerDraw);
-        revertPowerImage();
-        drawPowerImage(goldenSRC);
-    }
-    else {
-        drawPowerImage(goldenSRC);
-    }
     score += 2;
     scoreNeeded += 1;
     scoreElement.classList.add('animation');
     scoreTimeout = setTimeout(function () {
         scoreElement.classList.remove('animation');
     }, 1000);
-    upgradeElement.innerHTML = scoreNeeded + " tacos until speedup";
+    upgradeElement.innerHTML = scoreNeeded;
 }
 
 // Sets onclick functions for all buttons to null
@@ -234,7 +231,7 @@ function removeOnClicks() {
 function welcome() {
     headText.innerHTML = "Seasons Greetings!";
     questionText.innerHTML = "Welcome to the Connie Boi and Paulie Girl 2-year anniversary snake game!<br/>" +
-        "The rules are simple. Read the descriptions for each power-up, choose a difficulty, and begin.<br/>" +
+        "Use the arrow keys to move, read the descriptions for each power-up, choose a difficulty, and begin.<br/>" +
         "There is a twist though. Touching a power-up is half the battle. You also need to answer a question about " +
         "our relationship <strong>CORRECTLY</strong> if you want to receive its effects.<br/><br/>Good luck!";
 
@@ -292,11 +289,13 @@ function welcomeDifficulty(event) {
     cCircle.removeEventListener("click", welcomeDifficulty);
     dCircle.removeEventListener("click", welcomeDifficulty);
 
+    window.addEventListener("keydown", handler);
     game = setInterval(draw, SPEED);
 }
 
 // Game over function
 function gameOver() {
+    window.removeEventListener("keydown", handler);
     gameOverStyle();
 
     aCircle.addEventListener("click", gameOverLogic);
@@ -306,8 +305,10 @@ function gameOver() {
 // CSS style for game over window
 function gameOverStyle() {
     table.style.display = "flex";
+    table.style.width = "600px";
     table.style.height = "400px";
     table.style.top = "160px";
+    table.style.left = "150px";
     questionText.style.paddingBottom = "30px";
     rowOne.style.display = "table-row";
     rowTwo.style.display = "table-row";
@@ -366,22 +367,27 @@ function gameOverLogic(event) {
     }
     else if (event.target.id == "circle-b1") {
         justTextStyle();
+        table.style.width = "700px";
+        table.style.left = "100px";
         headText.innerHTML = "BORING";
 
         aCircle.removeEventListener("click", gameOverLogic);
         bCircle.removeEventListener("click", gameOverLogic);
 
         setTimeout(function () {
-            document.body.style.display = "none";
+            cvs.style.display = "none";
+            boardCVS.style.display = "none";
+            table.style.display = "none";
+            scoreArea.style.display = "none";
         }, 5000);
     }
 }
 
 // Function to determine if you get power-up effects or not
 function activatePower(type) {
-    //let questionNumber = ~~(Math.random() * questions.length);
     clearInterval(game);
-    let questionNumber = 0;
+    let questionNumber = ~~(Math.random() * questions.length);
+    //let questionNumber = 0;
     let validNumber = false;
     while (validNumber == false) {
         if (questionsUsed.includes(questionNumber) == false) {
@@ -400,16 +406,58 @@ function activatePower(type) {
         cCircle.onclick = function () { fourChoiceLogic(type, "circle-c", questions[questionNumber].correct) };
         dCircle.onclick = function () { fourChoiceLogic(type, "circle-d", questions[questionNumber].correct) };
     }
-    if (questions[questionNumber].type == "3-choice") {
+    else if (questions[questionNumber].type == "3-choice") {
         threeChoiceStyle(questions[questionNumber].choice1, questions[questionNumber].choice2,
             questions[questionNumber].choice3, questions[questionNumber].question);
         aCircle.onclick = function () { threeChoiceLogic(type, "circle-a", questions[questionNumber].correct) };
         bCircle.onclick = function () { threeChoiceLogic(type, "circle-b", questions[questionNumber].correct) };
         cCircle.onclick = function () { threeChoiceLogic(type, "circle-c", questions[questionNumber].correct) };
     }
+    else if (questions[questionNumber].type == "2-choice") {
+        twoChoiceStyle(questions[questionNumber].question);
+        aCircle.onclick = function () { twoChoiceLogic(type, "circle-a", questions[questionNumber].correct) };
+        bCircle.onclick = function () { twoChoiceLogic(type, "circle-b", questions[questionNumber].correct) };
+    }
     if (questionsUsed.length == questions.length) {
         questionsUsed = [];
     }
+}
+
+// Performs functions needed when getting a right answer
+function rightAnswer(type) {
+    justTextStyle();
+    table.style.width = "300px";
+    table.style.height = "300px";
+    table.style.top = "210px";
+    table.style.left = "300px";
+    if (type != "half-speed" && type != "bonus-points") {
+        powerUpLogic(type);
+    }
+    let timeRemaining = 5;
+    headText.innerHTML = timeRemaining;
+    headText.classList.add('animation-timer');
+    let gameRestart = setInterval(function () {
+        headText.innerHTML = timeRemaining;
+        headText.classList.add('animation-timer');
+        timeRemaining--;
+        if (timeRemaining < 0) {
+            headText.innerHTML = "";
+            headText.classList.remove('animation-timer');
+            table.style.display = "none";
+            if (type != "half-speed" && type != "bonus-points") {
+                game = setInterval(draw, SPEED);
+            }
+            else if (type == "bonus-points") {
+                powerUpLogic(type);
+                game = setInterval(draw, SPEED);
+            }
+            else {
+                powerUpLogic(type);
+            }
+            addPowerImageUI(type);
+            clearInterval(gameRestart);
+        }
+    }, 1000);
 }
 
 // Disables power-up if question is answered incorrectly
@@ -472,11 +520,9 @@ function wrongAnswer(type) {
     }
 }
 
-// Applies effects of acquired power-up
-function powerUpLogic(type) {
+// Adds power-up image to UI
+function addPowerImageUI(type) {
     if (type == "half-speed") {
-        halfSpeedActive = false;
-        halfSpeedInUse = true;
         if (drawDone == false && firstPower == true) {
             clearTimeout(powerDraw);
             revertPowerImage();
@@ -485,6 +531,54 @@ function powerUpLogic(type) {
         else {
             drawPowerImage(speedSRC);
         }
+    }
+    else if (type == "-4 length") {
+        if (drawDone == false && firstPower == true) {
+            clearTimeout(powerDraw);
+            revertPowerImage();
+            drawPowerImage(smallSRC);
+        }
+        else {
+            drawPowerImage(smallSRC);
+        }
+    }
+    else if (type == "bonus-points") {
+        if (drawDone == false && firstPower == true) {
+            clearTimeout(powerDraw);
+            revertPowerImage();
+            drawPowerImage(pointsSRC);
+        }
+        else {
+            drawPowerImage(pointsSRC);
+        }
+    }
+    else if (type == "extra-tacos") {
+        if (drawDone == false && firstPower == true) {
+            clearTimeout(powerDraw);
+            revertPowerImage();
+            drawPowerImage(extraSRC);
+        }
+        else {
+            drawPowerImage(extraSRC);
+        }
+    }
+    else if (type == "golden-tacos") {
+        if (drawDone == false && firstPower == true) {
+            clearTimeout(powerDraw);
+            revertPowerImage();
+            drawPowerImage(goldenSRC);
+        }
+        else {
+            drawPowerImage(goldenSRC);
+        }
+    }
+}
+
+// Applies effects of acquired power-up
+function powerUpLogic(type) {
+    if (type == "half-speed") {
+        halfSpeedActive = false;
+        halfSpeedInUse = true;
         let counter = 15;
         let speedDifference = SPEED;
         SPEED *= 2;
@@ -511,14 +605,6 @@ function powerUpLogic(type) {
     }
     else if (type == "-4 length") {
         smallActive = false;
-        if (drawDone == false && firstPower == true) {
-            clearTimeout(powerDraw);
-            revertPowerImage();
-            drawPowerImage(smallSRC);
-        }
-        else {
-            drawPowerImage(smallSRC);
-        }
         for (let i = 1; i <= 4; i++) {
             if (snake.length > 1) {
                 snake.pop();
@@ -532,14 +618,6 @@ function powerUpLogic(type) {
     else if (type == "bonus-points") {
         pointsActive = false;
         clearTimeout(scoreTimeout);
-        if (drawDone == false && firstPower == true) {
-            clearTimeout(powerDraw);
-            revertPowerImage();
-            drawPowerImage(pointsSRC);
-        }
-        else {
-            drawPowerImage(pointsSRC);
-        }
         score += 10;
         scoreElement.classList.add('animation');
         scoreTimeout = setTimeout(function () {
@@ -552,14 +630,6 @@ function powerUpLogic(type) {
     }
     else if (type == "extra-tacos") {
         extraActive = false;
-        if (drawDone == false && firstPower == true) {
-            clearTimeout(powerDraw);
-            revertPowerImage();
-            drawPowerImage(extraSRC);
-        }
-        else {
-            drawPowerImage(extraSRC);
-        }
         extraOneX = extraOneY = extraTwoX = extraTwoY = extraThreeX = extraThreeY = -box;
         let extraOneIntersection, extraTwoIntersection, extraThreeIntersection;
         extraOneIntersection = extraTwoIntersection = extraThreeIntersection = true;
@@ -674,16 +744,39 @@ function powerUpLogic(type) {
 
 // CSS style for 4-choice questions
 function fourChoiceStyle(choiceOne, choiceTwo, choiceThree, choiceFour, question) {
+    table.style.width = "800px";
     table.style.height = "450px";
     table.style.top = "135px";
+    table.style.left = "50px";
     rowOne.style.display = "none";
     rowTwo.style.display = "table-row";
     circleRow.style.display = "table-row";
+    circleRow.style.height = "48px";
+    for (let i = 0; i < circleContainers.length; i++){
+        circleContainers[i].style.width = "32px";
+        circleContainers[i].style.height = "32px";
+    }
     rowFour.style.display = "table-row";
     cCircleCell.style.display = "table-cell";
     cAnswerCell.style.display = "table-cell";
     dCircleCell.style.display = "table-cell";
     dAnswerCell.style.display = "table-cell";
+    aCircle.setAttribute("class", "answer-circle-active");
+    bCircle.setAttribute("class", "answer-circle-active");
+    cCircle.setAttribute("class", "answer-circle-active");
+    dCircle.setAttribute("class", "answer-circle-active");
+    aCircle.style.r = "15px";
+    aCircle.style.cx = "16px";
+    aCircle.style.cy = "16px";
+    bCircle.style.r = "15px";
+    bCircle.style.cx = "16px";
+    bCircle.style.cy = "16px";
+    cCircle.style.r = "15px";
+    cCircle.style.cx = "16px";
+    cCircle.style.cy = "16px";
+    dCircle.style.r = "15px";
+    dCircle.style.cx = "16px";
+    dCircle.style.cy = "16px";
     aDifficultyText.innerHTML = "";
     bDifficultyText.innerHTML = "";
     cDifficultyText.innerHTML = "";
@@ -699,10 +792,10 @@ function fourChoiceStyle(choiceOne, choiceTwo, choiceThree, choiceFour, question
     bText.style.marginTop = "16px";
     cText.style.marginTop = "16px";
     dText.style.marginTop = "16px";
-    aText.style.fontSize = "12px";
-    bText.style.fontSize = "12px";
-    cText.style.fontSize = "12px";
-    dText.style.fontSize = "12px";
+    aText.style.fontSize = "16px";
+    bText.style.fontSize = "16px";
+    cText.style.fontSize = "16px";
+    dText.style.fontSize = "16px";
     let answerPlacement = [];
     while(answerPlacement.length < 4){
         let current = Math.floor(Math.random() * 4) + 1;
@@ -773,11 +866,7 @@ function fourChoiceLogic(type, id, correct) {
     removeOnClicks();
     if (id == "circle-a") {
         if (aText.innerHTML == correct) {
-            powerUpLogic(type);
-            table.style.display = "none";
-            if (type != "half-speed") {
-                game = setInterval(draw, SPEED);
-            }
+            rightAnswer(type);
         }
         else {
             wrongAnswer(type);
@@ -789,11 +878,7 @@ function fourChoiceLogic(type, id, correct) {
     }
     else if (id == "circle-b") {
         if (bText.innerHTML == correct) {
-            powerUpLogic(type);
-            table.style.display = "none";
-            if (type != "half-speed") {
-                game = setInterval(draw, SPEED);
-            }
+            rightAnswer(type);
         }
         else {
             wrongAnswer(type);
@@ -805,11 +890,7 @@ function fourChoiceLogic(type, id, correct) {
     }
     else if (id == "circle-c") {
         if (cText.innerHTML == correct) {
-            powerUpLogic(type);
-            table.style.display = "none";
-            if (type != "half-speed") {
-                game = setInterval(draw, SPEED);
-            }
+            rightAnswer(type);
         }
         else {
             wrongAnswer(type);
@@ -821,11 +902,7 @@ function fourChoiceLogic(type, id, correct) {
     }
     else {
         if (dText.innerHTML == correct) {
-            powerUpLogic(type);
-            table.style.display = "none";
-            if (type != "half-speed") {
-                game = setInterval(draw, SPEED);
-            }
+            rightAnswer(type);
         }
         else {
             wrongAnswer(type);
@@ -839,16 +916,35 @@ function fourChoiceLogic(type, id, correct) {
 
 // CSS style for 3-choice questions
 function threeChoiceStyle(choiceOne, choiceTwo, choiceThree, question) {
+    table.style.width = "700px";
     table.style.height = "400px";
     table.style.top = "160px";
+    table.style.left = "100px";
     rowOne.style.display = "none";
     rowTwo.style.display = "table-row";
     circleRow.style.display = "table-row";
+    circleRow.style.height = "60px";
+    for (let i = 0; i < circleContainers.length - 1; i++){
+        circleContainers[i].style.width = "42px";
+        circleContainers[i].style.height = "42px";
+    }
     rowFour.style.display = "table-row";
     cCircleCell.style.display = "table-cell";
     cAnswerCell.style.display = "table-cell";
     dCircleCell.style.display = "none";
     dAnswerCell.style.display = "none";
+    aCircle.setAttribute("class", "answer-circle-active");
+    bCircle.setAttribute("class", "answer-circle-active");
+    cCircle.setAttribute("class", "answer-circle-active");
+    aCircle.style.r = "20px";
+    aCircle.style.cx = "21px";
+    aCircle.style.cy = "21px";
+    bCircle.style.r = "20px";
+    bCircle.style.cx = "21px";
+    bCircle.style.cy = "21px";
+    cCircle.style.r = "20px";
+    cCircle.style.cx = "21px";
+    cCircle.style.cy = "21px";
     aDifficultyText.innerHTML = "";
     bDifficultyText.innerHTML = "";
     cDifficultyText.innerHTML = "";
@@ -911,11 +1007,7 @@ function threeChoiceLogic(type, id, correct) {
     removeOnClicks();
     if (id == "circle-a") {
         if (aText.innerHTML == correct) {
-            powerUpLogic(type);
-            table.style.display = "none";
-            if (type != "half-speed") {
-                game = setInterval(draw, SPEED);
-            }
+            rightAnswer(type);
         }
         else {
             wrongAnswer(type);
@@ -927,11 +1019,7 @@ function threeChoiceLogic(type, id, correct) {
     }
     else if (id == "circle-b") {
         if (bText.innerHTML == correct) {
-            powerUpLogic(type);
-            table.style.display = "none";
-            if (type != "half-speed") {
-                game = setInterval(draw, SPEED);
-            }
+            rightAnswer(type);
         }
         else {
             wrongAnswer(type);
@@ -943,11 +1031,70 @@ function threeChoiceLogic(type, id, correct) {
     }
     else {
         if (cText.innerHTML == correct) {
-            powerUpLogic(type);
-            table.style.display = "none";
-            if (type != "half-speed") {
+            rightAnswer(type);
+        }
+        else {
+            wrongAnswer(type);
+            setTimeout(function () {
+                table.style.display = "none";
                 game = setInterval(draw, SPEED);
-            }
+            }, 3000);
+        }
+    }
+}
+
+// CSS style for true/false questions
+function twoChoiceStyle(question) {
+    table.style.width = "600px";
+    table.style.height = "400px";
+    table.style.top = "160px";
+    table.style.left = "150px";
+    rowOne.style.display = "none";
+    rowTwo.style.display = "table-row";
+    circleRow.style.display = "table-row";
+    circleRow.style.height = "70px";
+    for (let i = 0; i < circleContainers.length - 1; i++){
+        circleContainers[i].style.width = "62px";
+        circleContainers[i].style.height = "62px";
+    }
+    rowFour.style.display = "none";
+    cCircleCell.style.display = "none";
+    cAnswerCell.style.display = "none";
+    dCircleCell.style.display = "none";
+    dAnswerCell.style.display = "none";
+    aCircle.setAttribute("class", "answer-circle-active");
+    bCircle.setAttribute("class", "answer-circle-active");
+    aCircle.style.r = "30px";
+    aCircle.style.cx = "31px";
+    aCircle.style.cy = "31px";
+    bCircle.style.r = "30px";
+    bCircle.style.cx = "31px";
+    bCircle.style.cy = "31px";
+    aCircleText.textContent = 'True';
+    bCircleText.textContent = 'False';
+    table.style.display = "flex";
+    questionText.style.fontSize = "40pt";
+    questionText.innerHTML = question;
+}
+
+// Logic for handling true/false questions
+function twoChoiceLogic(type, id, correct) {
+    removeOnClicks();
+    if (id == "circle-a") {
+        if (aCircleText.textContent == correct) {
+            rightAnswer(type);
+        }
+        else {
+            wrongAnswer(type);
+            setTimeout(function () {
+                table.style.display = "none";
+                game = setInterval(draw, SPEED);
+            }, 3000);
+        }
+    }
+    else {
+        if (bCircleText.textContent == correct) {
+            rightAnswer(type);
         }
         else {
             wrongAnswer(type);

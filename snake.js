@@ -160,11 +160,10 @@ let scoreNeeded = UPGRADE;
 // Initializes variable to keep track of direction
 let d;
 
-window.addEventListener("keydown", function(e) {
-    this.keyDown.call(this, e); 
-});
-
 // Determines which direction the player presses
+var handler = function(e) {
+    this.keyDown.call(this, e); 
+}
 var keyBuffer = [];
 var keyDown = function(e) {
     var keyCode = e.which ? e.which : e.keyCode;
@@ -290,6 +289,7 @@ let levelTimeout = setTimeout(function () {
 
 // Function for drawing all parts of the game and UI
 function draw() {
+    console.log(SPEED);
     // Clears the board
     ctx.clearRect(0, 0, cvs.width, cvs.height);
 
@@ -413,8 +413,7 @@ function draw() {
         }
 
         // Determines which (if any) power-up will spawn
-        //let powerChoice = Math.random();
-        let powerChoice = 0.25;
+        let powerChoice = Math.random();
         if (powerChoice <= POWER_CHANCE) {
             // Case for half-speed power-up
             if (powerChoice <= (POWER_CHANCE / 4) && halfSpeedActive == false && halfSpeedInUse == false) {
@@ -448,7 +447,7 @@ function draw() {
             }
             
             // Case for -4 length power-up
-            else if (powerChoice <= ((POWER_CHANCE / 4) * 2) && smallActive == false) {
+            else if ((powerChoice <= ((POWER_CHANCE / 4) * 2) && (powerChoice > (POWER_CHANCE / 4))) && smallActive == false) {
                 smallX = smallY = -box;
                 let smallIntersection = true;
                 let smallIntersectCount = 0;
@@ -479,7 +478,7 @@ function draw() {
             }
             
             // Case for bonus points power-up
-            else if (powerChoice <= ((POWER_CHANCE / 4) * 3) && pointsActive == false) {
+            else if (((powerChoice <= ((POWER_CHANCE / 4) * 3)) && powerChoice > ((POWER_CHANCE / 4) * 2)) && pointsActive == false) {
                 pointsX = pointsY = -box;
                 let pointsIntersection = true;
                 let pointsIntersectCount = 0;
