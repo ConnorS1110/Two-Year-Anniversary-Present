@@ -1,3 +1,10 @@
+## [1.6.2] - 06-12-2021
+
+### Fixed
+
+-   Fixed issue causing the character to move automatically after choosing a difficulty when choosing to play again
+-   Fixed issue causing x, y coordinates (but not the drawing) of the head of the snake to be one unit ahead of where it was supposed to be after touching a power-up
+
 ## [1.6.1] - 06-11-2021
 
 ### Added

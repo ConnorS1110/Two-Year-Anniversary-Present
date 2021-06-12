@@ -42,6 +42,9 @@ let bDifficultyText = document.getElementById("power-b-info");
 let cDifficultyText = document.getElementById("power-c-info");
 let dDifficultyText = document.getElementById("power-d-info");
 
+// Initializes array that keeps track of questions used
+let questionsUsed = [];
+
 // Default pop-up style
 function defaultStyle() {
     table.style.display = "flex";
@@ -113,6 +116,8 @@ function defaultStyle() {
 // Resets the game board
 function gameReset() {
     d = "";
+    keyBuffer = [];
+    dontRun = true;
     clearInterval(game);
     ctx.clearRect(0, 0, cvs.width, cvs.height);
     snake.length = 1;
@@ -290,6 +295,7 @@ function welcomeDifficulty(event) {
     dCircle.removeEventListener("click", welcomeDifficulty);
 
     window.addEventListener("keydown", handler);
+    dontRun = false;
     game = setInterval(draw, SPEED);
 }
 
@@ -385,6 +391,7 @@ function gameOverLogic(event) {
 
 // Function to determine if you get power-up effects or not
 function activatePower(type) {
+    dontRun = true;
     clearInterval(game);
     let questionNumber = ~~(Math.random() * questions.length);
     //let questionNumber = 0;
@@ -440,15 +447,17 @@ function rightAnswer(type) {
         headText.innerHTML = timeRemaining;
         headText.classList.add('animation-timer');
         timeRemaining--;
-        if (timeRemaining < 0) {
+        if (timeRemaining <= 0) {
             headText.innerHTML = "";
             headText.classList.remove('animation-timer');
             table.style.display = "none";
             if (type != "half-speed" && type != "bonus-points") {
+                dontRun = false;
                 game = setInterval(draw, SPEED);
             }
             else if (type == "bonus-points") {
                 powerUpLogic(type);
+                dontRun = false;
                 game = setInterval(draw, SPEED);
             }
             else {
@@ -580,9 +589,11 @@ function powerUpLogic(type) {
         halfSpeedActive = false;
         halfSpeedInUse = true;
         let counter = 15;
+        dontRun = true;
+        clearInterval(game);
         let speedDifference = SPEED;
         SPEED *= 2;
-        clearInterval(game);
+        dontRun = false;
         game = setInterval(draw, SPEED);
         countDown = setInterval(function () {
             time.classList.add('animation');
@@ -592,9 +603,11 @@ function powerUpLogic(type) {
                 time.innerHTML = "";
                 time.classList.remove('animation');
                 clearInterval(countDown);
+                dontRun = true;
+                clearInterval(game);
                 SPEED -= speedDifference;
                 halfSpeedInUse = false;
-                clearInterval(game);
+                dontRun = false;
                 game = setInterval(draw, SPEED);
             }
         }, 1000);
@@ -715,7 +728,7 @@ function powerUpLogic(type) {
         }
     }
     else if (type == "golden-tacos") {
-        if (snake[1].x == extraOne.x && snake[1].y == extraOne.y) {
+        if (snakeX == extraOne.x && snakeY == extraOne.y) {
             extraOneActive = false;
             goldenScore();
             extraOne = {
@@ -723,7 +736,7 @@ function powerUpLogic(type) {
                 y: -box
             }
         }
-        else if (snake[1].x == extraTwo.x && snake[1].y == extraTwo.y) {
+        else if (snakeX == extraTwo.x && snakeY == extraTwo.y) {
             extraTwoActive = false;
             goldenScore();
             extraTwo = {
@@ -731,7 +744,7 @@ function powerUpLogic(type) {
                 y: -box
             }
         }
-        else if (snake[1].x == extraThree.x && snake[1].y == extraThree.y){
+        else if (snakeX == extraThree.x && snakeY == extraThree.y) {
             extraThreeActive = false;
             goldenScore();
             extraThree = {
@@ -872,6 +885,7 @@ function fourChoiceLogic(type, id, correct) {
             wrongAnswer(type);
             setTimeout(function () {
                 table.style.display = "none";
+                dontRun = false;
                 game = setInterval(draw, SPEED);
             }, 3000);
         }
@@ -884,6 +898,7 @@ function fourChoiceLogic(type, id, correct) {
             wrongAnswer(type);
             setTimeout(function () {
                 table.style.display = "none";
+                dontRun = false;
                 game = setInterval(draw, SPEED);
             }, 3000);
         }
@@ -896,6 +911,7 @@ function fourChoiceLogic(type, id, correct) {
             wrongAnswer(type);
             setTimeout(function () {
                 table.style.display = "none";
+                dontRun = false;
                 game = setInterval(draw, SPEED);
             }, 3000);
         }
@@ -908,6 +924,7 @@ function fourChoiceLogic(type, id, correct) {
             wrongAnswer(type);
             setTimeout(function () {
                 table.style.display = "none";
+                dontRun = false;
                 game = setInterval(draw, SPEED);
             }, 3000);
         }
@@ -1013,6 +1030,7 @@ function threeChoiceLogic(type, id, correct) {
             wrongAnswer(type);
             setTimeout(function () {
                 table.style.display = "none";
+                dontRun = false;
                 game = setInterval(draw, SPEED);
             }, 3000);
         }
@@ -1025,6 +1043,7 @@ function threeChoiceLogic(type, id, correct) {
             wrongAnswer(type);
             setTimeout(function () {
                 table.style.display = "none";
+                dontRun = false;
                 game = setInterval(draw, SPEED);
             }, 3000);
         }
@@ -1037,6 +1056,7 @@ function threeChoiceLogic(type, id, correct) {
             wrongAnswer(type);
             setTimeout(function () {
                 table.style.display = "none";
+                dontRun = false;
                 game = setInterval(draw, SPEED);
             }, 3000);
         }
@@ -1088,6 +1108,7 @@ function twoChoiceLogic(type, id, correct) {
             wrongAnswer(type);
             setTimeout(function () {
                 table.style.display = "none";
+                dontRun = false;
                 game = setInterval(draw, SPEED);
             }, 3000);
         }
@@ -1100,6 +1121,7 @@ function twoChoiceLogic(type, id, correct) {
             wrongAnswer(type);
             setTimeout(function () {
                 table.style.display = "none";
+                dontRun = false;
                 game = setInterval(draw, SPEED);
             }, 3000);
         }

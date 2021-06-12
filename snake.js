@@ -25,6 +25,9 @@ let level = 1;
 //Chance for a power-up to spawn
 let POWER_CHANCE = 0.4;
 
+// Boolean to stop code when clearing interval of game being drawn
+let dontRun = false;
+
 // The size of each square in the grid based off the number of columns
 const box = cvs.width / COLUMNS;
 
@@ -36,9 +39,10 @@ snake[0] = {
 }
 let snakeX = snake[0].x;
 let snakeY = snake[0].y;
-
-// Initializes array that keeps track of questions used
-let questionsUsed = [];
+let newHead = {
+    x: -box,
+    y: -box
+}
 
 // Initializes power-up variables
 let halfSpeedX, halfSpeedY;
@@ -84,6 +88,7 @@ speedImage.src = speedSRC;
 smallImage.src = smallSRC;
 
 // Initializes taco location
+let foodCollision = false;
 let foodX, foodY = 0;
 let foodIntersection = true;
 let foodIntersectCount = 0;
@@ -102,6 +107,9 @@ let food = {
     x: foodX,
     y: foodY
 }
+
+let powerUpCollision = false;
+let frameAfterPowerUp = 0;
 
 // Initializes half-speed power-up variables
 let halfSpeedActive = false;
@@ -289,68 +297,71 @@ let levelTimeout = setTimeout(function () {
 
 // Function for drawing all parts of the game and UI
 function draw() {
-    console.log(SPEED);
     // Clears the board
-    ctx.clearRect(0, 0, cvs.width, cvs.height);
+    if (frameAfterPowerUp == 0) {
+        ctx.clearRect(0, 0, cvs.width, cvs.height);
+    }
 
     // Draws the snake
-    for (let i = 0; i < snake.length; i++){
-        // Head
-        if (i == 0) {
-            // Down
-            if (d == "DOWN") {
-                rotateDraw(head, snake[i].x + (box / 2), snake[i].y + (box / 2), 90);
+    if (dontRun == false) {
+        for (let i = 0; i < snake.length; i++){
+            // Head
+            if (i == 0) {
+                // Down
+                if (d == "DOWN") {
+                    rotateDraw(head, snake[i].x + (box / 2), snake[i].y + (box / 2), 90);
+                }
+                // Up
+                else if (d == "UP") {
+                    rotateDraw(head, snake[i].x + (box / 2), snake[i].y + (box / 2), -90);
+                }
+                // Left
+                else if (d == "RIGHT") {
+                    flipDraw(head, snake[i].x + (box / 2), snake[i].y + (box / 2));
+                }
+                // Left
+                else {
+                    ctx.drawImage(head, snake[i].x, snake[i].y, box, box);
+                }
+                
             }
-            // Up
-            else if (d == "UP") {
-                rotateDraw(head, snake[i].x + (box / 2), snake[i].y + (box / 2), -90);
+            // Main body
+            else if (i != (snake.length - 1)) {
+                // Down
+                if ((snake[i].y < snake[i - 1].y) && (snake[i].x == snake[i - 1].x)) {
+                    rotateDraw(hair, snake[i].x + (box / 2), snake[i].y + (box / 2), 90);
+                }
+                // Up
+                else if ((snake[i].y > snake[i - 1].y) && (snake[i].x == snake[i - 1].x)) {
+                    rotateDraw(hair, snake[i].x + (box / 2), snake[i].y + (box / 2), -90);
+                }
+                // Right
+                else if ((snake[i].x < snake[i - 1].x) && (snake[i].y == snake[i - 1].y)) {
+                    ctx.drawImage(hair, snake[i].x, snake[i].y, box, box);
+                }
+                // Left
+                else {
+                    flipDraw(hair, snake[i].x + (box / 2), snake[i].y + (box / 2));
+                }
             }
-            // Left
-            else if (d == "RIGHT") {
-                flipDraw(head, snake[i].x + (box / 2), snake[i].y + (box / 2));
-            }
-            // Left
+            // Tail piece
             else {
-                ctx.drawImage(head, snake[i].x, snake[i].y, box, box);
-            }
-            
-        }
-        // Main body
-        else if (i != (snake.length - 1)) {
-            // Down
-            if ((snake[i].y < snake[i - 1].y) && (snake[i].x == snake[i - 1].x)) {
-                rotateDraw(hair, snake[i].x + (box / 2), snake[i].y + (box / 2), 90);
-            }
-            // Up
-            else if ((snake[i].y > snake[i - 1].y) && (snake[i].x == snake[i - 1].x)) {
-                rotateDraw(hair, snake[i].x + (box / 2), snake[i].y + (box / 2), -90);
-            }
-            // Right
-            else if ((snake[i].x < snake[i - 1].x) && (snake[i].y == snake[i - 1].y)) {
-                ctx.drawImage(hair, snake[i].x, snake[i].y, box, box);
-            }
-            // Left
-            else {
-                flipDraw(hair, snake[i].x + (box / 2), snake[i].y + (box / 2));
-            }
-        }
-        // Tail piece
-        else {
-            // Down
-            if ((snake[i].y < snake[i - 1].y) && (snake[i].x == snake[i - 1].x)) {
-                rotateDraw(tail, snake[i].x + (box / 2), snake[i].y + (box / 2), 90);
-            }
-            // Up
-            else if ((snake[i].y > snake[i - 1].y) && (snake[i].x == snake[i - 1].x)) {
-                rotateDraw(tail, snake[i].x + (box / 2), snake[i].y + (box / 2), -90);
-            }
-            // Right
-            else if ((snake[i].x < snake[i - 1].x) && (snake[i].y == snake[i - 1].y)) {
-                ctx.drawImage(tail, snake[i].x, snake[i].y, box, box);
-            }
-            // Left
-            else {
-                flipDraw(tail, snake[i].x + (box / 2), snake[i].y + (box / 2));
+                // Down
+                if ((snake[i].y < snake[i - 1].y) && (snake[i].x == snake[i - 1].x)) {
+                    rotateDraw(tail, snake[i].x + (box / 2), snake[i].y + (box / 2), 90);
+                }
+                // Up
+                else if ((snake[i].y > snake[i - 1].y) && (snake[i].x == snake[i - 1].x)) {
+                    rotateDraw(tail, snake[i].x + (box / 2), snake[i].y + (box / 2), -90);
+                }
+                // Right
+                else if ((snake[i].x < snake[i - 1].x) && (snake[i].y == snake[i - 1].y)) {
+                    ctx.drawImage(tail, snake[i].x, snake[i].y, box, box);
+                }
+                // Left
+                else {
+                    flipDraw(tail, snake[i].x + (box / 2), snake[i].y + (box / 2));
+                }
             }
         }
     }
@@ -365,6 +376,7 @@ function draw() {
     // Logic for eating a taco
     if (snakeX == food.x && snakeY == food.y) {
         clearTimeout(scoreTimeout);
+        foodCollision = true;
         score++;
         scoreElement.classList.add('animation');
         scoreTimeout = setTimeout(function () {
@@ -542,8 +554,13 @@ function draw() {
         }
     }
     else {
-        snake.pop(); // Removes tail if not eating a taco
+        if (dontRun == false) {
+            if (powerUpCollision == false) {
+                snake.pop(); // Removes tail if not eating a taco
+            }
+        }
     }
+    
 
     /* Logic for colliding with half-speed power-up
     Doubles speed and keeps track of speed at time power-up is acquired
@@ -551,6 +568,8 @@ function draw() {
     in case player earns enough points for a speed boost
     */
     if (snakeX == halfSpeed.x && snakeY == halfSpeed.y) {
+        powerUpCollision = true;
+        frameAfterPowerUp = 1;
         activatePower("half-speed");
     }
     
@@ -564,6 +583,8 @@ function draw() {
     Removes the last 4 tail pieces from the snake (if they exist)
     */
     if (snakeX == small.x && snakeY == small.y) {
+        powerUpCollision = true;
+        frameAfterPowerUp = 1;
         activatePower("-4 length");
     }
 
@@ -576,6 +597,8 @@ function draw() {
     Adds 10 points to current score without incrementing speed of game
     */
     if (snakeX == points.x && snakeY == points.y) {
+        powerUpCollision = true;
+        frameAfterPowerUp = 1;
         activatePower("bonus-points");
     }
 
@@ -587,6 +610,8 @@ function draw() {
     /* Logic for colliding with extra tacos power-up (spawns three golden tacos)
     */
     if (snakeX == extra.x && snakeY == extra.y) {
+        powerUpCollision = true;
+        frameAfterPowerUp = 1;
         activatePower("extra-tacos");
     }
 
@@ -600,6 +625,8 @@ function draw() {
     */
     if (snakeX == extraOne.x && snakeY == extraOne.y || snakeX == extraTwo.x && snakeY == extraTwo.y ||
         snakeX == extraThree.x && snakeY == extraThree.y) {
+        powerUpCollision = true;
+        frameAfterPowerUp = 1;
         activatePower("golden-tacos");
     }
 
@@ -622,27 +649,30 @@ function draw() {
     upgradeElement.innerHTML = scoreNeeded;
 
     // Determines how to move snake depending on the direction it is moving
-    direction();
-    if (d == "LEFT") {
-        snakeX -= box;
-    }
-    if (d == "UP") {
-        snakeY -= box;
-    }
-    if (d == "RIGHT") {
-        snakeX += box;
-    }
-    if (d == "DOWN") {
-        snakeY += box;
-    }
+    if (dontRun == false) {
+        direction();
+        if (d == "LEFT") {
+            snakeX -= box;
+        }
+        if (d == "UP") {
+            snakeY -= box;
+        }
+        if (d == "RIGHT") {
+            snakeX += box;
+        }
+        if (d == "DOWN") {
+            snakeY += box;
+        }
 
-    let newHead = {
+        newHead = {
         x: snakeX,
         y: snakeY
+        }
     }
 
     // Game over conditions
-    if (snakeX < 0 || snakeX > box * (COLUMNS - 1) || snakeY < 0 ||
+    if (dontRun == false) {
+        if (snakeX < 0 || snakeX > box * (COLUMNS - 1) || snakeY < 0 ||
         snakeY > ~~(box * (COLUMNS - 1) * 0.8) || collision(newHead, snake)) {
         clearInterval(game);
         clearInterval(countDown);
@@ -655,6 +685,7 @@ function draw() {
         }
         removeOnClicks();
         gameOver();
+        }
     }
 
     // Checks for a collision
@@ -668,7 +699,14 @@ function draw() {
     }
 
     // Moves snake forward
-    snake.unshift(newHead);
+    if (dontRun == false) {
+        snake.unshift(newHead);
+        foodCollision = false;
+        powerUpCollision = false;
+        if (frameAfterPowerUp != 0) {
+            frameAfterPowerUp--;
+        }
+    }
 }
 
 // Starts game
