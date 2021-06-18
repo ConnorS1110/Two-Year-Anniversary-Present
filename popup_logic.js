@@ -13,6 +13,7 @@ let musicSlider = document.getElementById("music-slider");
 let effectSlider = document.getElementById("effect-slider");
 let musicPicture = document.getElementById("music-picture");
 let effectPicture = document.getElementById("effects-picture");
+let endVideo = document.getElementById("end-video");
 // Pop-up elements
 let table = document.getElementById("pop-up");
 let rowOne = document.getElementById("row1");
@@ -59,6 +60,10 @@ let firstStart = false;
 // Booleans to determine if extra piece needs to be popped from snake with -4 length power-up
 let extraPop = false;
 
+let updateZoom = setInterval(function () {
+    return;
+});
+
 // Initialize setInterval function for countdown timer
 let countDown = setInterval(function () {
     return 0;
@@ -70,13 +75,13 @@ let speedDifference = 0;
 // Adjusts volume for music
 musicSlider.oninput = function () {
     if (this.value > 50) {
-        music.volume = ((0.65 * (this.value - 50)) / 50) + 0.35;
+        music.volume = ((0.8 * (this.value - 50)) / 50) + 0.2;
     }
     else if (this.value < 50) {
-        music.volume = ((0.35 * (this.value - 50)) / 50) + 0.35;
+        music.volume = ((0.2 * (this.value - 50)) / 50) + 0.2;
     }
     else {
-        music.volume = 0.35;
+        music.volume = 0.2;
     }
     if (this.value == 0) {
         musicPicture.src = noAudioSRC;
@@ -153,11 +158,12 @@ function startGameLogic(e) {
     setTimeout(function () {
         ripples.remove();
         startButton.classList.add('fade-out');
-        music.volume = 0.65;
+        music.volume = 0.5;
         music.loop = true;
         music.play();
         setTimeout(function () {
             startBoard.style.display = "none";
+            startButton.style.display = "none";
         }, 2000);
         setTimeout(function () {
             welcome();
@@ -167,7 +173,7 @@ function startGameLogic(e) {
             document.body.style.float = "left";
             zoomPage();
             // Dynamically zooms page
-            setInterval(function () {
+            updateZoom = setInterval(function () {
                 if ((viewWidth != Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)) ||
                 (viewHeight != Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0))) {
                     viewWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
@@ -178,7 +184,7 @@ function startGameLogic(e) {
             gameBoard.classList.add('fade-in');
             let musicFade = setInterval(function () {
                 music.volume -= .005;
-                if (music.volume <= (0.35)) {
+                if (music.volume <= (0.20)) {
                     clearInterval(musicFade);
                     gameBoard.classList.remove('fade-in');
                     gameBoard.style.opacity = 1;
@@ -568,6 +574,8 @@ function gameOverLogic(event) {
 
         setTimeout(function () {
             gameBoard.style.display = "none";
+            clearInterval(updateZoom);
+            document.body.style.transform = "scale(1, 1)";
             setTimeout(function () {
                 endGameOne.play();
                 setTimeout(function () {
@@ -576,6 +584,12 @@ function gameOverLogic(event) {
                         endGameThree.play();
                         setTimeout(function () {
                             music.pause();
+                            startBoard.style.display = "flex";
+                            endVideo.style.display = "block";
+                            endVideo.play();
+                            setTimeout(function () {
+                                startBoard.style.display = "none";
+                            }, 61000);
                         }, 15000);
                     }, 15000);
                 }, 15000);

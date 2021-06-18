@@ -1,3 +1,14 @@
+## [1.8] - 06-18-21
+
+### Added
+
+-   Surprise at the very end of the game
+
+### Changed
+
+-   Adjusted default music volume so it's not as loud
+-   Adjusted sizing of UI elements to be more properly aligned with the game board
+
 ## [1.7.1] - 06-18-2021
 
 ### Fixed
