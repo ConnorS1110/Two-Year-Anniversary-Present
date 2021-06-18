@@ -1,3 +1,9 @@
+## [1.7.1] - 06-18-2021
+
+### Fixed
+
+-   Added sound effect that was not properly implemented in v1.7
+
 ## [1.7] - 06-18-2021
 
 ### Added

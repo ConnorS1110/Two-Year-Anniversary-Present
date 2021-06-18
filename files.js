@@ -45,6 +45,7 @@ const bonusAudio = new Audio('audio/cheer.mp3');
 const smallAudio = new Audio('audio/small.mp3');
 const halfSpeedAudio = new Audio('audio/half.mp3');
 const fart = new Audio('audio/fart.mp3');
+const damn = new Audio('audio/damn.mp3');
 const clickBass = new Audio('audio/click_bass.mp3');
 const correctAudio = new Audio('audio/correct.mp3');
 const clockShort = new Audio('audio/clock_5.mp3');

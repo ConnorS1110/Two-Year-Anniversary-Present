@@ -646,17 +646,18 @@ function draw() {
     if (dontRun == false) {
         if (snakeX < 0 || snakeX > box * (COLUMNS - 1) || snakeY < 0 ||
         snakeY > ~~(box * (COLUMNS - 1) * 0.8) || collision(newHead, snake)) {
-        clearInterval(game);
-        clearInterval(countDown);
-        time.classList.remove('animation');
-        time.innerHTML = "";
-        clearTimeout(scoreTimeout);
-        clearTimeout(powerDraw);
-        if (drawDone == false && firstPower == true) {
-            revertPowerImage();
-        }
-        removeOnClicks();
-        gameOver();
+            clearInterval(game);
+            clearInterval(countDown);
+            time.classList.remove('animation');
+            time.innerHTML = "";
+            clearTimeout(scoreTimeout);
+            clearTimeout(powerDraw);
+            if (drawDone == false && firstPower == true) {
+                revertPowerImage();
+            }
+            removeOnClicks();
+            gameOver();
+            damn.play();
         }
     }
 
