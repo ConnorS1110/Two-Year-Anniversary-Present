@@ -1,9 +1,80 @@
 body {
-    margin: 0;
     background-color: black;
-    float: left;
-    display: flex;
+    margin: 0;
+    display: block;
     transform: scale(1, 1);
+}
+
+#start {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 95vh;
+    margin: 0;
+}
+
+#start-button {
+    pointer-events: fill;
+    user-select: none;
+    font-family: "Bahnschrift";
+    text-decoration: none;
+    font-size: 125pt;
+    color: white;
+    padding: 50px;
+    border-radius: 150px;
+    background: linear-gradient(90deg, #6e14a7, #a227d6);
+}
+
+#start a > span {
+    position: absolute;
+    background: rgb(110, 20, 167);
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    animation: animate 1s linear infinite;
+}
+@keyframes animate {
+    0% {
+        width: 0px;
+        height: 0px;
+        background: rgba(255, 255, 255, 0.75);
+    }
+    100% {
+        width: 500px;
+        height: 500px;
+        background: rgba(255, 255, 255, 0);
+    }
+}
+
+.fade-out {
+    animation: fading-out 2s linear;
+}
+@keyframes fading-out {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+.fade-in {
+    animation: fading-in 3s linear;
+}
+@keyframes fading-in {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+#game {
+    display: none;
+    margin: 0;
+    float: left;
+    width: 1200px;
 }
 
 #pop-up {
@@ -37,6 +108,7 @@ td {
 #head-text {
     font-size: 30pt;
     font-weight: bold;
+    color: white;
     text-align: center;
     margin: 20px;
     vertical-align: middle;
@@ -44,6 +116,7 @@ td {
 
 #pop-up-text {
     font-size: 12pt;
+    color: white;
     text-align: center;
     margin: 0 auto;
     padding-bottom: 0;
@@ -59,6 +132,7 @@ td {
     text-align: center;
     vertical-align: initial;
     font-size: 10pt;
+    color: white;
     margin-top: 5px;
     margin-bottom: 10px;
     padding: 0;
@@ -131,6 +205,7 @@ td {
 .difficulty-info {
     text-align: left;
     font-size: 10pt;
+    color: white;
     margin: 0 auto;
     padding-left: 5px;
     position: absolute;
@@ -153,6 +228,7 @@ td {
     font-size: 20px;
     fill: white;
     pointer-events: none;
+    user-select: none;
 }
 
 .answer-circle-container {
@@ -230,6 +306,7 @@ td {
     width: 300px;
     height: 235px;
     background-color: purple;
+    border-radius: 0px 20px 0px 0px;
     position: relative;
     font-family: "Bahnschrift";
 }
@@ -279,13 +356,54 @@ td {
     color: red;
 }
 
-#text-space {
+#controllers {
     width: 300px;
-    height: 400px;
+    height: 150px;
     background-color: blueviolet;
-    top: 200px;
-    left: -300px;
-    position: relative;
+    border-radius: 0px 0px 20px 0px;
+    top: 235px;
+    left: 900px;
+    position: absolute;
+    padding-top: 8px;
+}
+
+#sliders-table {
+    width: 90%;
+    height: 90%;
+    border: 0px solid black;
+    margin: 0 auto;
+}
+
+#sliders-table td {
+    text-align: center;
+    vertical-align: middle;
+    color: white;
+}
+
+.slider {
+    width: 60%;
+    -webkit-appearance: none;
+    height: 4px;
+    border-radius: 4px;
+    background-color: white;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #04aa6d;
+    cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #04aa6d;
+    cursor: pointer;
 }
 
 #timer {
@@ -342,10 +460,7 @@ td {
 }
 
 #timer.animation {
-    animation-name: flashing;
-    animation-duration: 1s;
-    animation-iteration-count: 15;
-    animation-timing-function: ease-in-out;
+    animation: flashing 1s ease-in-out infinite;
 }
 
 @keyframes flashing {

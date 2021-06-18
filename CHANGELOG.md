@@ -1,3 +1,26 @@
+## [1.7] - 06-18-2021
+
+### Added
+
+-   Added sound effects
+-   Added 'Launch Game' button with transition to game screen (to allow for audio to auto-play)
+-   Audio sliders for music and sound effects
+
+### Changed
+
+-   Further adjusted sizings of pop-up UI
+-   Smoothed edges of game board
+-   Forced font colors to white instead of leaving the black default
+
+### Fixed
+
+-   Fixed issue causing golden-taco spawner to spawn at incorrect times
+-   Fixed issue causing half-speed power-up to not pause when answering a question
+-   Fixed issue causing window to incorrectly scale
+-   Fixed issue causing the game to freeze when interacting with golden-taco spawner power-up
+-   Fixed issues with position of pop-up UI being not-centered
+-   Fixed issue causing incorrect number of pieces to be removed when acquiring -4 length power-up
+
 ## [1.6.2] - 06-12-2021
 
 ### Fixed

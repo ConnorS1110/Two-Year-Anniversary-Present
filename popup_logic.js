@@ -6,9 +6,17 @@ let upgradeElement = document.getElementById("upgrade-number");
 let powerElement = document.getElementById("power-up");
 let powerImage = document.getElementById("power-up-image");
 let time = document.getElementById("timer");
+let startButton = document.getElementById("start-button");
+let startBoard = document.getElementById("start");
+let gameBoard = document.getElementById("game");
+let musicSlider = document.getElementById("music-slider");
+let effectSlider = document.getElementById("effect-slider");
+let musicPicture = document.getElementById("music-picture");
+let effectPicture = document.getElementById("effects-picture");
 // Pop-up elements
 let table = document.getElementById("pop-up");
 let rowOne = document.getElementById("row1");
+let questionImage = document.getElementById("pop-up-image");
 let headText = document.getElementById("head-text");
 let questionText = document.getElementById("pop-up-text");
 let rowTwo = document.getElementById("row2");
@@ -45,6 +53,146 @@ let dDifficultyText = document.getElementById("power-d-info");
 // Initializes array that keeps track of questions used
 let questionsUsed = [];
 
+// Boolean to determine if it's the first time a game has been started
+let firstStart = false;
+
+// Booleans to determine if extra piece needs to be popped from snake with -4 length power-up
+let extraPop = false;
+
+// Initialize setInterval function for countdown timer
+let countDown = setInterval(function () {
+    return 0;
+}, 1000);
+
+let counter = 0;
+let speedDifference = 0;
+
+// Adjusts volume for music
+musicSlider.oninput = function () {
+    if (this.value > 50) {
+        music.volume = ((0.65 * (this.value - 50)) / 50) + 0.35;
+    }
+    else if (this.value < 50) {
+        music.volume = ((0.35 * (this.value - 50)) / 50) + 0.35;
+    }
+    else {
+        music.volume = 0.35;
+    }
+    if (this.value == 0) {
+        musicPicture.src = noAudioSRC;
+    }
+    else if (this.value <= 33) {
+        musicPicture.src = oneAudioSRC;
+    }
+    else if (this.value > 33 && this.value <= 66) {
+        musicPicture.src = twoAudioSRC;
+    }
+    else {
+        musicPicture.src = threeAudioSRC;
+    }
+}
+
+// Adjusts volume for all sound effects
+effectSlider.oninput = function() {
+    for (let i = 0; i < soundEffects.length; i++) {
+        if (soundEffects[i] == bell) {
+            if (this.value > 50) {
+                bell.volume = ((0.25 * (this.value - 50)) / 50) + 0.75;
+            }
+            else if (this.value < 50) {
+                bell.volume = ((0.75 * (this.value - 50)) / 50) + 0.75;
+            }
+            else {
+                bell.volume = 0.75;
+            }
+        }
+        else if (soundEffects[i] == clockLong) {
+            if (this.value > 50) {
+                clockLong.volume = ((0.65 * (this.value - 50)) / 50) + 0.35;
+            }
+            else if (this.value < 50) {
+                clockLong.volume = ((0.35 * (this.value - 50)) / 50) + 0.35;
+            }
+            else {
+                clockLong.volume = 0.35;
+            }
+        }
+        else {
+            soundEffects[i].volume = this.value / 100;
+        }
+    }
+    if (this.value == 0) {
+        effectPicture.src = noAudioSRC;
+    }
+    else if (this.value <= 33) {
+        effectPicture.src = oneAudioSRC;
+    }
+    else if (this.value > 33 && this.value <= 66) {
+        effectPicture.src = twoAudioSRC;
+    }
+    else {
+        effectPicture.src = threeAudioSRC;
+    }
+}
+
+// Adds eventListener to starting button
+function startGame() {
+    startButton.addEventListener("click", startGameLogic);
+}
+
+// Logic for clicking the 'launch game' button
+function startGameLogic(e) {
+    let x = e.clientX;
+    let y = e.clientY;
+    let ripples = document.createElement('span');
+    ripples.style.left = x + 'px';
+    ripples.style.top = y + 'px';
+    ripples.className = "ripples";
+    startButton.appendChild(ripples);
+    clickBass.play();
+    setTimeout(function () {
+        ripples.remove();
+        startButton.classList.add('fade-out');
+        music.volume = 0.65;
+        music.loop = true;
+        music.play();
+        setTimeout(function () {
+            startBoard.style.display = "none";
+        }, 2000);
+        setTimeout(function () {
+            welcome();
+            gameBoard.style.opacity = 0;
+            gameBoard.style.display = "flex";
+            document.body.style.display = "flex";
+            document.body.style.float = "left";
+            zoomPage();
+            // Dynamically zooms page
+            setInterval(function () {
+                if ((viewWidth != Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)) ||
+                (viewHeight != Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0))) {
+                    viewWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+                    viewHeight = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+                    zoomPage();
+                    }
+            }, 1000);
+            gameBoard.classList.add('fade-in');
+            let musicFade = setInterval(function () {
+                music.volume -= .005;
+                if (music.volume <= (0.35)) {
+                    clearInterval(musicFade);
+                    gameBoard.classList.remove('fade-in');
+                    gameBoard.style.opacity = 1;
+                    welcomeHey.play();
+                    aCircle.addEventListener("click", welcomeDifficulty);
+                    bCircle.addEventListener("click", welcomeDifficulty);
+                    cCircle.addEventListener("click", welcomeDifficulty);
+                    dCircle.addEventListener("click", welcomeDifficulty);
+                }
+            }, 50);
+        }, 13000);
+    }, 1000);
+}
+
 // Default pop-up style
 function defaultStyle() {
     table.style.display = "flex";
@@ -54,6 +202,8 @@ function defaultStyle() {
     table.style.left = "60px";
 
     rowOne.style.display = "table-row";
+    questionImage.style.display = "none";
+    headText.style.display = "block";
     headText.style.fontSize = "30pt";
 
     rowTwo.style.display = "table-row";
@@ -204,6 +354,7 @@ function gameReset() {
 function justTextStyle() {
     table.style.display = "flex";
     rowOne.style.display = "table-row";
+    questionImage.style.display = "none";
     rowTwo.style.display = "none";
     powerImageRow.style.display = "none";
     powerInfoRow.style.display = "none";
@@ -224,6 +375,27 @@ function goldenScore() {
     upgradeElement.innerHTML = scoreNeeded;
 }
 
+// Resumes half-speed countdown timer
+function restartHalfTimer() {
+    clockLong.play();
+    countDown = setInterval(function () {
+        time.classList.add('animation');
+        time.innerHTML = counter;
+        counter--;
+        if (counter < 0) {
+            time.innerHTML = "";
+            time.classList.remove('animation');
+            clearInterval(countDown);
+            dontRun = true;
+            clearInterval(game);
+            SPEED -= speedDifference;
+            halfSpeedInUse = false;
+            dontRun = false;
+            game = setInterval(draw, SPEED);
+        }
+    }, 1000);
+}
+
 // Sets onclick functions for all buttons to null
 function removeOnClicks() {
     aCircle.onclick = '';
@@ -234,6 +406,10 @@ function removeOnClicks() {
 
 // Welcome function
 function welcome() {
+    if (firstStart == true) {
+        welcomeHey.play();
+    }
+    questionImage.style.display = "none";
     headText.innerHTML = "Seasons Greetings!";
     questionText.innerHTML = "Welcome to the Connie Boi and Paulie Girl 2-year anniversary snake game!<br/>" +
         "Use the arrow keys to move, read the descriptions for each power-up, choose a difficulty, and begin.<br/>" +
@@ -254,10 +430,12 @@ function welcome() {
     dText.innerHTML = "Hard<br/>(Godspeed)<br/>";
     dDifficultyText.innerHTML = "Speed: Fast<br/>Max Speed: Fast<br/>Power-ups: Uncommon";
 
-    aCircle.addEventListener("click", welcomeDifficulty);
-    bCircle.addEventListener("click", welcomeDifficulty);
-    cCircle.addEventListener("click", welcomeDifficulty);
-    dCircle.addEventListener("click", welcomeDifficulty);
+    if (firstStart == true) {
+        aCircle.addEventListener("click", welcomeDifficulty);
+        bCircle.addEventListener("click", welcomeDifficulty);
+        cCircle.addEventListener("click", welcomeDifficulty);
+        dCircle.addEventListener("click", welcomeDifficulty);
+    }
 }
 
 // Determines values for game variables based off welcome screen input
@@ -266,14 +444,14 @@ function welcomeDifficulty(event) {
     powerImageRow.style.display = "table-row";
     powerInfoRow.style.display = "table-row";
     if (event.target.id == "circle-a") {
-        SPEED = 350;
-        MAX_SPEED = 150;
-        POWER_CHANCE = 0.6;
+        SPEED = 400;
+        MAX_SPEED = 200;
+        POWER_CHANCE = 0.65;
     }
     else if (event.target.id == "circle-b") {
-        SPEED = 250;
-        MAX_SPEED = 100;
-        POWER_CHANCE = 0.5;
+        SPEED = 325;
+        MAX_SPEED = 150;
+        POWER_CHANCE = 0.55;
     }
     else if (event.target.id == "circle-c") {
         SPEED = 200;
@@ -295,6 +473,10 @@ function welcomeDifficulty(event) {
     dCircle.removeEventListener("click", welcomeDifficulty);
 
     window.addEventListener("keydown", handler);
+    if (firstStart == false) {
+        gameStart.play();
+        firstStart = true;
+    }
     dontRun = false;
     game = setInterval(draw, SPEED);
 }
@@ -340,6 +522,7 @@ function gameOverStyle() {
     dCircleCell.style.display = "none";
     dAnswerCell.style.display = "none";
 
+    headText.style.display = "block";
     headText.style.fontSize = "30px";
     headText.innerHTML = "You Died";
     questionText.style.fontSize = "12pt";
@@ -373,18 +556,30 @@ function gameOverLogic(event) {
     }
     else if (event.target.id == "circle-b1") {
         justTextStyle();
-        table.style.width = "700px";
-        table.style.left = "100px";
+        table.style.width = "800px";
+        table.style.height = "300px";
+        table.style.left = "50px";
+        table.style.top = "210px";
         headText.innerHTML = "BORING";
+        fart.play();
 
         aCircle.removeEventListener("click", gameOverLogic);
         bCircle.removeEventListener("click", gameOverLogic);
 
         setTimeout(function () {
-            cvs.style.display = "none";
-            boardCVS.style.display = "none";
-            table.style.display = "none";
-            scoreArea.style.display = "none";
+            gameBoard.style.display = "none";
+            setTimeout(function () {
+                endGameOne.play();
+                setTimeout(function () {
+                    endGameTwo.play();
+                    setTimeout(function () {
+                        endGameThree.play();
+                        setTimeout(function () {
+                            music.pause();
+                        }, 15000);
+                    }, 15000);
+                }, 15000);
+            }, 7500);
         }, 5000);
     }
 }
@@ -393,8 +588,13 @@ function gameOverLogic(event) {
 function activatePower(type) {
     dontRun = true;
     clearInterval(game);
+    if (halfSpeedInUse == true) {
+        clockLong.pause();
+        clearInterval(countDown);
+        time.classList.remove('animation');
+    }
     let questionNumber = ~~(Math.random() * questions.length);
-    //let questionNumber = 0;
+    //let questionNumber = 1;
     let validNumber = false;
     while (validNumber == false) {
         if (questionsUsed.includes(questionNumber) == false) {
@@ -425,6 +625,15 @@ function activatePower(type) {
         aCircle.onclick = function () { twoChoiceLogic(type, "circle-a", questions[questionNumber].correct) };
         bCircle.onclick = function () { twoChoiceLogic(type, "circle-b", questions[questionNumber].correct) };
     }
+    else {
+        imageStyle(questions[questionNumber].choice1, questions[questionNumber].choice2,
+            questions[questionNumber].choice3, questions[questionNumber].choice4, questions[questionNumber].question,
+            questions[questionNumber].image);
+        aCircle.onclick = function () { fourChoiceLogic(type, "circle-a", questions[questionNumber].correct) };
+        bCircle.onclick = function () { fourChoiceLogic(type, "circle-b", questions[questionNumber].correct) };
+        cCircle.onclick = function () { fourChoiceLogic(type, "circle-c", questions[questionNumber].correct) };
+        dCircle.onclick = function () { fourChoiceLogic(type, "circle-d", questions[questionNumber].correct) };
+    }
     if (questionsUsed.length == questions.length) {
         questionsUsed = [];
     }
@@ -433,35 +642,63 @@ function activatePower(type) {
 // Performs functions needed when getting a right answer
 function rightAnswer(type) {
     justTextStyle();
+    table.style.display = "none";
     table.style.width = "300px";
     table.style.height = "300px";
     table.style.top = "210px";
     table.style.left = "300px";
-    if (type != "half-speed" && type != "bonus-points") {
+    if (type == "extra-tacos") {
         powerUpLogic(type);
     }
     let timeRemaining = 5;
+    headText.style.display = "block";
     headText.innerHTML = timeRemaining;
-    headText.classList.add('animation-timer');
+    correctAudio.play();
     let gameRestart = setInterval(function () {
+        clockShort.play();
+        table.style.display = "flex";
         headText.innerHTML = timeRemaining;
         headText.classList.add('animation-timer');
         timeRemaining--;
-        if (timeRemaining <= 0) {
+        if (timeRemaining < 0) {
             headText.innerHTML = "";
             headText.classList.remove('animation-timer');
             table.style.display = "none";
-            if (type != "half-speed" && type != "bonus-points") {
+            if (type != "extra-tacos" && type != "half-speed") {
+                if (type == "-4 length") {
+                    powerUpLogic(type);
+                    smallAudio.play();
+                    if (halfSpeedInUse == true) {
+                        restartHalfTimer();
+                    }
+                }
+                else if (type == "bonus-points") {
+                    powerUpLogic(type);
+                    bonusAudio.play();
+                    if (halfSpeedInUse == true) {
+                        restartHalfTimer();
+                    }
+                }
+                else if (type == "golden-tacos") {
+                    powerUpLogic(type);
+                    goldenAudio.play();
+                    if (halfSpeedInUse == true) {
+                        restartHalfTimer();
+                    }
+                }
                 dontRun = false;
                 game = setInterval(draw, SPEED);
             }
-            else if (type == "bonus-points") {
+            else if (type == "half-speed") {
                 powerUpLogic(type);
-                dontRun = false;
-                game = setInterval(draw, SPEED);
             }
             else {
-                powerUpLogic(type);
+                goldenSpawnAudio.play();
+                if (halfSpeedInUse == true) {
+                    restartHalfTimer();
+                }
+                dontRun = false;
+                game = setInterval(draw, SPEED);
             }
             addPowerImageUI(type);
             clearInterval(gameRestart);
@@ -472,9 +709,13 @@ function rightAnswer(type) {
 // Disables power-up if question is answered incorrectly
 function wrongAnswer(type) {
     justTextStyle();
+    fart.play();
+    table.style.width = "600px";
     table.style.height = "400px";
     table.style.top = "160px";
+    table.style.left = "150px";
     headText.style.fontSize = "80pt";
+    headText.style.display = "block";
     headText.innerHTML = "What are you stupid?";
     if (type == "half-speed") {
         halfSpeedActive = false;
@@ -588,14 +829,16 @@ function powerUpLogic(type) {
     if (type == "half-speed") {
         halfSpeedActive = false;
         halfSpeedInUse = true;
-        let counter = 15;
+        counter = 15;
         dontRun = true;
         clearInterval(game);
-        let speedDifference = SPEED;
+        speedDifference = SPEED;
         SPEED *= 2;
+        halfSpeedAudio.play();
         dontRun = false;
         game = setInterval(draw, SPEED);
         countDown = setInterval(function () {
+            clockLong.play();
             time.classList.add('animation');
             time.innerHTML = counter;
             counter--;
@@ -618,10 +861,14 @@ function powerUpLogic(type) {
     }
     else if (type == "-4 length") {
         smallActive = false;
+        let originalLength = snake.length;
         for (let i = 1; i <= 4; i++) {
             if (snake.length > 1) {
                 snake.pop();
             }
+        }
+        if (originalLength <= 4 & originalLength >= 1) {
+            extraPop = true;
         }
         small = {
             x: -box,
@@ -726,6 +973,9 @@ function powerUpLogic(type) {
             x: -box,
             y: -box
         }
+        ctx.drawImage(goldenTaco, extraOne.x, extraOne.y, box, box);
+        ctx.drawImage(goldenTaco, extraTwo.x, extraTwo.y, box, box);
+        ctx.drawImage(goldenTaco, extraThree.x, extraThree.y, box, box);
     }
     else if (type == "golden-tacos") {
         if (snakeX == extraOne.x && snakeY == extraOne.y) {
@@ -758,8 +1008,8 @@ function powerUpLogic(type) {
 // CSS style for 4-choice questions
 function fourChoiceStyle(choiceOne, choiceTwo, choiceThree, choiceFour, question) {
     table.style.width = "800px";
-    table.style.height = "450px";
-    table.style.top = "135px";
+    table.style.height = "500px";
+    table.style.top = "110px";
     table.style.left = "50px";
     rowOne.style.display = "none";
     rowTwo.style.display = "table-row";
@@ -887,6 +1137,9 @@ function fourChoiceLogic(type, id, correct) {
                 table.style.display = "none";
                 dontRun = false;
                 game = setInterval(draw, SPEED);
+                if (halfSpeedInUse == true) {
+                    restartHalfTimer();
+                }
             }, 3000);
         }
     }
@@ -900,6 +1153,9 @@ function fourChoiceLogic(type, id, correct) {
                 table.style.display = "none";
                 dontRun = false;
                 game = setInterval(draw, SPEED);
+                if (halfSpeedInUse == true) {
+                    restartHalfTimer();
+                }
             }, 3000);
         }
     }
@@ -913,6 +1169,9 @@ function fourChoiceLogic(type, id, correct) {
                 table.style.display = "none";
                 dontRun = false;
                 game = setInterval(draw, SPEED);
+                if (halfSpeedInUse == true) {
+                    restartHalfTimer();
+                }
             }, 3000);
         }
     }
@@ -926,6 +1185,9 @@ function fourChoiceLogic(type, id, correct) {
                 table.style.display = "none";
                 dontRun = false;
                 game = setInterval(draw, SPEED);
+                if (halfSpeedInUse == true) {
+                    restartHalfTimer();
+                }
             }, 3000);
         }
     }
@@ -934,8 +1196,8 @@ function fourChoiceLogic(type, id, correct) {
 // CSS style for 3-choice questions
 function threeChoiceStyle(choiceOne, choiceTwo, choiceThree, question) {
     table.style.width = "700px";
-    table.style.height = "400px";
-    table.style.top = "160px";
+    table.style.height = "450px";
+    table.style.top = "135px";
     table.style.left = "100px";
     rowOne.style.display = "none";
     rowTwo.style.display = "table-row";
@@ -1032,6 +1294,9 @@ function threeChoiceLogic(type, id, correct) {
                 table.style.display = "none";
                 dontRun = false;
                 game = setInterval(draw, SPEED);
+                if (halfSpeedInUse == true) {
+                    restartHalfTimer();
+                }
             }, 3000);
         }
     }
@@ -1045,6 +1310,9 @@ function threeChoiceLogic(type, id, correct) {
                 table.style.display = "none";
                 dontRun = false;
                 game = setInterval(draw, SPEED);
+                if (halfSpeedInUse == true) {
+                    restartHalfTimer();
+                }
             }, 3000);
         }
     }
@@ -1058,6 +1326,9 @@ function threeChoiceLogic(type, id, correct) {
                 table.style.display = "none";
                 dontRun = false;
                 game = setInterval(draw, SPEED);
+                if (halfSpeedInUse == true) {
+                    restartHalfTimer();
+                }
             }, 3000);
         }
     }
@@ -1065,10 +1336,10 @@ function threeChoiceLogic(type, id, correct) {
 
 // CSS style for true/false questions
 function twoChoiceStyle(question) {
-    table.style.width = "600px";
+    table.style.width = "700px";
     table.style.height = "400px";
     table.style.top = "160px";
-    table.style.left = "150px";
+    table.style.left = "100px";
     rowOne.style.display = "none";
     rowTwo.style.display = "table-row";
     circleRow.style.display = "table-row";
@@ -1110,6 +1381,9 @@ function twoChoiceLogic(type, id, correct) {
                 table.style.display = "none";
                 dontRun = false;
                 game = setInterval(draw, SPEED);
+                if (halfSpeedInUse == true) {
+                    restartHalfTimer();
+                }
             }, 3000);
         }
     }
@@ -1123,7 +1397,132 @@ function twoChoiceLogic(type, id, correct) {
                 table.style.display = "none";
                 dontRun = false;
                 game = setInterval(draw, SPEED);
+                if (halfSpeedInUse == true) {
+                    restartHalfTimer();
+                }
             }, 3000);
+        }
+    }
+}
+
+// CSS style for image questions
+function imageStyle(choiceOne, choiceTwo, choiceThree, choiceFour, question, image) {
+    table.style.width = "800px";
+    table.style.height = "550px";
+    table.style.top = "85px";
+    table.style.left = "50px";
+    rowOne.style.display = "table-row";
+    headText.style.display = "none";
+    questionImage.style.display = "block";
+    questionImage.src = image;
+    rowTwo.style.display = "table-row";
+    circleRow.style.display = "table-row";
+    circleRow.style.height = "48px";
+    for (let i = 0; i < circleContainers.length; i++){
+        circleContainers[i].style.width = "32px";
+        circleContainers[i].style.height = "32px";
+    }
+    rowFour.style.display = "table-row";
+    cCircleCell.style.display = "table-cell";
+    cAnswerCell.style.display = "table-cell";
+    dCircleCell.style.display = "table-cell";
+    dAnswerCell.style.display = "table-cell";
+    aCircle.setAttribute("class", "answer-circle-active");
+    bCircle.setAttribute("class", "answer-circle-active");
+    cCircle.setAttribute("class", "answer-circle-active");
+    dCircle.setAttribute("class", "answer-circle-active");
+    aCircle.style.r = "15px";
+    aCircle.style.cx = "16px";
+    aCircle.style.cy = "16px";
+    bCircle.style.r = "15px";
+    bCircle.style.cx = "16px";
+    bCircle.style.cy = "16px";
+    cCircle.style.r = "15px";
+    cCircle.style.cx = "16px";
+    cCircle.style.cy = "16px";
+    dCircle.style.r = "15px";
+    dCircle.style.cx = "16px";
+    dCircle.style.cy = "16px";
+    aDifficultyText.innerHTML = "";
+    bDifficultyText.innerHTML = "";
+    cDifficultyText.innerHTML = "";
+    dDifficultyText.innerHTML = "";
+    aCircleText.textContent = 'A';
+    bCircleText.textContent = 'B';
+    cCircleText.textContent = 'C';
+    dCircleText.textContent = 'D';
+    table.style.display = "flex";
+    questionText.style.fontSize = "40pt";
+    questionText.innerHTML = question;
+    aText.style.marginTop = "16px";
+    bText.style.marginTop = "16px";
+    cText.style.marginTop = "16px";
+    dText.style.marginTop = "16px";
+    aText.style.fontSize = "16px";
+    bText.style.fontSize = "16px";
+    cText.style.fontSize = "16px";
+    dText.style.fontSize = "16px";
+    let answerPlacement = [];
+    while(answerPlacement.length < 4){
+        let current = Math.floor(Math.random() * 4) + 1;
+        if(answerPlacement.indexOf(current) === -1) answerPlacement.push(current);
+    }
+    for (let i = 0; i < answerPlacement.length; i++) {
+        if (i == 0) {
+            if (answerPlacement[i] == 1) {
+                aText.innerHTML = choiceOne;
+            }
+            else if (answerPlacement[i] == 2) {
+                aText.innerHTML = choiceTwo;
+            }
+            else if (answerPlacement[i] == 3) {
+                aText.innerHTML = choiceThree;
+            }
+            else {
+                aText.innerHTML = choiceFour;
+            }
+        }
+        else if (i == 1) {
+            if (answerPlacement[i] == 1) {
+                bText.innerHTML = choiceOne;
+            }
+            else if (answerPlacement[i] == 2) {
+                bText.innerHTML = choiceTwo;
+            }
+            else if (answerPlacement[i] == 3) {
+                bText.innerHTML = choiceThree;
+            }
+            else {
+                bText.innerHTML = choiceFour;
+            }
+        }
+        else if (i == 2) {
+            if (answerPlacement[i] == 1) {
+                cText.innerHTML = choiceOne;
+            }
+            else if (answerPlacement[i] == 2) {
+                cText.innerHTML = choiceTwo;
+            }
+            else if (answerPlacement[i] == 3) {
+                cText.innerHTML = choiceThree;
+            }
+            else {
+                cText.innerHTML = choiceFour;
+            }
+        }
+        else {
+            if (answerPlacement[i] == 1) {
+                dText.innerHTML = choiceOne;
+            }
+            else if (answerPlacement[i] == 2) {
+                dText.innerHTML = choiceTwo;
+            }
+            else if (answerPlacement[i] == 3) {
+                dText.innerHTML = choiceThree;
+            }
+            else {
+                dText.innerHTML = choiceFour;
+            }
         }
     }
 }

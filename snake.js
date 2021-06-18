@@ -6,8 +6,8 @@ const boardCTX = boardCVS.getContext("2d");
 const TO_RADIANS = Math.PI / 180;
 let viewWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
 let viewHeight = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
-const contentWidth = cvs.width + document.getElementById("score-area").offsetWidth;
-const contentHeight = cvs.height;
+const contentWidth = 1200;
+const contentHeight = 720;
 
 //How many columns. There will be 0.8 times as many rows
 const COLUMNS = 25;
@@ -55,37 +55,6 @@ let extraX, extraY;
 extraX = extraY = -box;
 let extraOneX, extraOneY, extraTwoX, extraTwoY, extraThreeX, extraThreeY;
 extraOneX = extraOneY = extraTwoX = extraTwoY = extraThreeX = extraThreeY = -box;
-
-// Loads needed image files
-headSRC = "img/head.webp";
-hairSRC = "img/hair.webp";
-tailSRC = "img/tail.webp";
-tacoSRC = "img/taco.webp";
-goldenSRC = "img/golden_taco.webp";
-extraSRC = "img/extra.webp";
-pointsSRC = "img/points.webp";
-speedSRC = "img/speed.webp";
-smallSRC = "img/small.webp";
-
-const head = new Image();
-const hair = new Image();
-const tail = new Image();
-const taco = new Image();
-const goldenTaco = new Image();
-const extraImage = new Image();
-const pointsImage = new Image();
-const speedImage = new Image();
-const smallImage = new Image();
-
-head.src = headSRC;
-hair.src = hairSRC;
-tail.src = tailSRC;
-taco.src = tacoSRC;
-goldenTaco.src = goldenSRC;
-extraImage.src = extraSRC;
-pointsImage.src = pointsSRC;
-speedImage.src = speedSRC;
-smallImage.src = smallSRC;
 
 // Initializes taco location
 let foodCollision = false;
@@ -280,11 +249,6 @@ function drawPowerImage(imgSource) {
     }, 1000);
 }
 
-// Initialize setInterval function for countdown timer
-let countDown = setInterval(function () {
-    return 0;
-}, 1000);
-
 // Initialize setInterval function to remove animation class from score UI
 let scoreTimeout = setTimeout(function () {
     scoreElement.classList.remove('animation');
@@ -376,6 +340,12 @@ function draw() {
     // Logic for eating a taco
     if (snakeX == food.x && snakeY == food.y) {
         clearTimeout(scoreTimeout);
+        if (bell.ended == true) {
+            bell.play();
+        }
+        else {
+            bell.cloneNode(true).play();
+        }
         foodCollision = true;
         score++;
         scoreElement.classList.add('animation');
@@ -426,6 +396,7 @@ function draw() {
 
         // Determines which (if any) power-up will spawn
         let powerChoice = Math.random();
+        //let powerChoice = 0.15;
         if (powerChoice <= POWER_CHANCE) {
             // Case for half-speed power-up
             if (powerChoice <= (POWER_CHANCE / 4) && halfSpeedActive == false && halfSpeedInUse == false) {
@@ -522,7 +493,8 @@ function draw() {
             }
             
             // Case for extra food power-up
-            else if (extraActive == false && (extraOneActive == false && extraTwoActive == false && extraThreeActive == false)) {
+            else if ((powerChoice > ((POWER_CHANCE / 4) * 3)) && extraActive == false &&
+                (extraOneActive == false && extraTwoActive == false && extraThreeActive == false)) {
                 extraX = extraY = -box;
                 let extraIntersection = true;
                 let extraIntersectCount = 0;
@@ -701,6 +673,10 @@ function draw() {
     // Moves snake forward
     if (dontRun == false) {
         snake.unshift(newHead);
+        if (extraPop == true) {
+            snake.pop();
+            extraPop = false;
+        }
         foodCollision = false;
         powerUpCollision = false;
         if (frameAfterPowerUp != 0) {
@@ -710,16 +686,8 @@ function draw() {
 }
 
 // Starts game
+startGame();
 drawBoard();
-zoomPage();
-// Dynamically zooms page
-setInterval(function () {
-    if ((viewWidth != Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0)) ||
-    (viewHeight != Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0))) {
-        viewWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
-        viewHeight = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
-        zoomPage();
-        }
-}, 1000);
+// zoomPage();
+
 let game = setInterval(draw, SPEED);
-welcome();
