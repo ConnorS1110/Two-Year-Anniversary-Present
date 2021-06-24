@@ -86,8 +86,8 @@ questions = [
         "choice1": "Christmas",
         "choice2": "Paula's birthday",
         "choice3": "Connor's birthday",
-        "choice4": "No occasion",
-        "correct": "Christmas"
+        "choice4": "1 Year Anniversary",
+        "correct": "1 Year Anniversary"
     },
     {
         "type": "3-choice",
