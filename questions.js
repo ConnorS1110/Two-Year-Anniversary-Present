@@ -10,7 +10,7 @@ questions = [
     },
     {
         "type": "4-choice",
-        "question": "When Pandora charm did Connor first buy for Paula?",
+        "question": "What Pandora charm did Connor first buy for Paula?",
         "choice1": "Lilo & Stitch Ohana Charm",
         "choice2": "Mickey's Sorcerers Hat Charm",
         "choice3": "Tower of Terror Charm",
